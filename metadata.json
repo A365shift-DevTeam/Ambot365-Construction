@@ -1,0 +1,6 @@
+{
+  "name": "Ambot365 Engineering",
+  "description": "Premium futuristic construction and architectural engineering platform featuring interactive 3D simulations, structural stages, and luxury masterplans.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
