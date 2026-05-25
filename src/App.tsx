@@ -61,8 +61,6 @@ export default function App() {
 
   const handleSelectStage = (stageIndex: number, progressGoal: number) => {
     setActiveStage(stageIndex);
-    const targetSection = stageIndex === 0 ? 'hero' : stageIndex === 1 ? 'about' : stageIndex === 2 ? 'services' : 'contact';
-    handleNavigate(targetSection);
   };
 
   const handleSelectRenderMode = (mode: typeof renderMode, serviceId: string) => {
