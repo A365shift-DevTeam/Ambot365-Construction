@@ -4,7 +4,6 @@ import AboutSection from './components/AboutSection';
 import ServicesSection from './components/ServicesSection';
 import ProjectsShowcase from './components/ProjectsShowcase';
 import ProcessTimeline from './components/ProcessTimeline';
-import Testimonials from './components/Testimonials';
 import ContactSection from './components/ContactSection';
 import HeroBackgroundFrames from './components/HeroBackgroundFrames';
 
@@ -23,7 +22,7 @@ export default function App() {
       const progress = window.scrollY / docHeight;
       setScrollProgress(progress);
 
-      const sections = ['hero', 'about', 'services', 'projects', 'process', 'testimonials', 'contact'];
+      const sections = ['hero', 'about', 'services', 'projects', 'process', 'contact'];
       let currentSelection = 'hero';
 
       for (const section of sections) {
@@ -44,10 +43,8 @@ export default function App() {
         setActiveStage(1);
       } else if (currentSelection === 'services') {
         setActiveStage(2);
-      } else if (currentSelection === 'testimonials') {
-        setActiveStage(3);
       } else if (currentSelection === 'contact') {
-        setActiveStage(4);
+        setActiveStage(3);
       }
     };
 
@@ -64,7 +61,7 @@ export default function App() {
 
   const handleSelectStage = (stageIndex: number, progressGoal: number) => {
     setActiveStage(stageIndex);
-    const targetSection = stageIndex === 0 ? 'hero' : stageIndex === 1 ? 'about' : stageIndex === 2 ? 'services' : stageIndex === 3 ? 'testimonials' : 'contact';
+    const targetSection = stageIndex === 0 ? 'hero' : stageIndex === 1 ? 'about' : stageIndex === 2 ? 'services' : 'contact';
     handleNavigate(targetSection);
   };
 
@@ -101,7 +98,6 @@ export default function App() {
         <ServicesSection onSelectRenderMode={handleSelectRenderMode} focusedServiceId={focusedServiceId} />
         <ProjectsShowcase onFocusProject={handleFocusProject} focusedProjectId={focusedProjectId} />
         <ProcessTimeline onSelectStage={handleSelectStage} activeStage={activeStage} />
-        <Testimonials />
         <ContactSection />
 
       </div>
