@@ -10,19 +10,19 @@ export default function AboutSection() {
     {
       id: 1,
       name: "Structural Engineering",
-      desc: "Creating structural solutions for mega-tall structures and seismically volatile environments with rigorous, uncompromised safety standards.",
+      desc: "Expert design and analysis of reinforced concrete, structural steel, and composite systems for high-rise, industrial, and infrastructure projects across demanding seismic and wind environments.",
       icon: Drill,
     },
     {
       id: 2,
-      name: "Advanced Construction Techniques",
-      desc: "Deploying high-speed modern equipment, pre-assembled modular forms, and precise logistical streams to construct complex architecture on schedule.",
+      name: "Construction Management",
+      desc: "End-to-end project delivery from procurement and scheduling through to commissioning. Our site teams maintain zero-defect standards and full OSHA compliance on every build phase.",
       icon: Binary,
     },
     {
       id: 3,
-      name: "Sustainable Master Planning",
-      desc: "Utilizing modern multi-variable computing to plan layouts optimized for thermal efficiency, natural lighting, and organic foot traffic.",
+      name: "Sustainable Building",
+      desc: "Low-carbon materials, recycled aggregates, and prefabricated modular systems that reduce embodied carbon and construction waste — delivering LEED Platinum outcomes on every project.",
       icon: Layers,
     }
   ];
@@ -37,18 +37,13 @@ export default function AboutSection() {
   return (
     <section id="about" className="relative bg-white overflow-hidden border-t border-zinc-200">
 
-      {/* Giant ghosted section number */}
-      <div className="absolute -top-8 right-0 font-display text-[20rem] leading-none text-zinc-950/[0.028] pointer-events-none select-none pr-4 z-0">
-        01
-      </div>
-
       {/* ── Stats band ─────────────────────────────── */}
       <div className="relative z-10 border-b border-zinc-100">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-zinc-100">
             {stats.map((s, i) => (
               <div key={i} className="py-10 px-8 first:pl-0 lg:last:pr-0 flex flex-col gap-3">
-                <span className="font-display text-5xl md:text-6xl text-zinc-950 leading-none tracking-tight">
+                <span className="font-display font-extrabold text-4xl md:text-5xl text-zinc-950 leading-none tracking-tight">
                   {s.value}
                 </span>
                 <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-[0.22em] flex items-center gap-2">
@@ -64,36 +59,33 @@ export default function AboutSection() {
       {/* ── Main content ───────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-24 relative z-10">
 
-        {/* Section header */}
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-5">
             <span className="w-8 h-px bg-brand-orange" />
             <span className="font-mono text-[10px] text-brand-orange uppercase tracking-[0.3em]">
-              About Us — Core Leadership
+              About Ambot365
             </span>
           </div>
-          <h2 className="font-display text-6xl md:text-7xl lg:text-8xl text-zinc-950 leading-[0.88] tracking-tight mb-6">
-            Architects of<br />
-            <span className="text-brand-orange">Enduring Landmarks</span>
+          <h2 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl text-zinc-950 leading-[1.1] tracking-tight mb-6">
+            Building<br />
+            <span className="text-brand-orange">Tomorrow's Infrastructure</span>
           </h2>
-          <p className="text-zinc-500 text-sm leading-relaxed max-w-2xl">
-            Ambot365 is a premier engineering firm leading the integration of heavy structures, computational design, and structural robotics. We redefine what is physically possible, translating cinematic architectural geometry into permanent landmarks.
+          <p className="text-zinc-600 text-sm leading-relaxed max-w-2xl">
+            Ambot365 delivers integrated construction solutions across structural engineering, civil works, and building systems. With 25+ years of experience on landmark projects across four continents, we execute complex builds with precision, safety, and measurable results.
           </p>
         </div>
 
-        {/* Two-column grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
 
-          {/* LEFT ─ toggle + pillars */}
+          {/* LEFT */}
           <div className="lg:col-span-5 order-2 lg:order-1 flex flex-col gap-8">
 
-            {/* Toggle */}
             <div className="rounded-2xl border border-zinc-200 overflow-hidden bg-white shadow-sm">
               <div className="px-5 py-4 bg-zinc-50 border-b border-zinc-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-brand-orange" />
-                  <span className="font-display text-sm font-bold text-zinc-950 tracking-wider uppercase">
-                    Structural Modeling Lab
+                  <span className="font-display font-bold text-sm text-zinc-950 tracking-wider uppercase">
+                    Structural Model Viewer
                   </span>
                 </div>
                 <span className={`font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 rounded border ${
@@ -106,12 +98,12 @@ export default function AboutSection() {
               </div>
               <div className="p-5">
                 <p className="text-zinc-500 text-xs leading-relaxed mb-4">
-                  Alternate between a detailed architectural wireframe and a finished 3D parametric glass &amp; steel skyscraper model.
+                  Toggle between a detailed architectural wireframe and a finished 3D structural model.
                 </p>
                 <button
                   id="synthesis-toggle-btn"
                   onClick={() => setIsSynthesized(!isSynthesized)}
-                  className={`w-full py-3 px-4 rounded-xl font-display text-xs uppercase tracking-widest flex items-center justify-between border transition-all duration-500 cursor-pointer font-bold ${
+                  className={`w-full py-3 px-4 rounded-xl font-display font-bold text-xs uppercase tracking-widest flex items-center justify-between border transition-all duration-500 cursor-pointer ${
                     isSynthesized
                       ? 'bg-gradient-to-r from-brand-orange to-amber-500 text-white border-transparent shadow-lg shadow-brand-orange/20'
                       : 'bg-zinc-50 text-cyan-600 border-cyan-200 hover:border-cyan-400 hover:bg-white'
@@ -123,7 +115,6 @@ export default function AboutSection() {
               </div>
             </div>
 
-            {/* Numbered pillar list */}
             <div className="flex flex-col">
               {pillars.map((p, idx) => {
                 const IconComp = p.icon;
@@ -142,7 +133,7 @@ export default function AboutSection() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <h4 className="font-display text-sm font-bold text-zinc-950 uppercase tracking-wide leading-snug">
+                        <h4 className="font-display font-bold text-sm text-zinc-950 uppercase tracking-wide leading-snug">
                           {p.name}
                         </h4>
                         <div className={`p-1.5 rounded-lg flex-shrink-0 transition-all duration-200 ${
@@ -159,25 +150,14 @@ export default function AboutSection() {
             </div>
           </div>
 
-          {/* RIGHT ─ blueprint viewer */}
+          {/* RIGHT */}
           <div className="lg:col-span-7 order-1 lg:order-2">
             <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-200 shadow-xl p-8 flex items-center justify-center">
               <div className="absolute inset-0 blueprint-grid opacity-25 pointer-events-none" />
-
-              {/* Engineering corner marks */}
               <div className="absolute top-3 left-3 w-5 h-5 border-l-2 border-t-2 border-brand-orange/40" />
               <div className="absolute top-3 right-3 w-5 h-5 border-r-2 border-t-2 border-brand-orange/40" />
               <div className="absolute bottom-3 left-3 w-5 h-5 border-l-2 border-b-2 border-brand-orange/40" />
               <div className="absolute bottom-3 right-3 w-5 h-5 border-r-2 border-b-2 border-brand-orange/40" />
-
-              <div className="absolute top-4 left-7 z-20 font-mono text-[9px] text-zinc-400 flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full inline-block node-pulse ${isSynthesized ? 'bg-brand-orange' : 'bg-cyan-500'}`} />
-                DRAFTING FILE VIEWPORT
-              </div>
-              <div className="absolute top-4 right-7 z-20 font-mono text-[9px] text-zinc-400">SCALE: 1:250</div>
-              <div className="absolute bottom-4 left-7 z-20 font-mono text-[9px] text-zinc-400">
-                MODE: {isSynthesized ? 'FINISHED 3D SKYSCRAPER' : 'CAD WIREFRAME SCHEMATIC'}
-              </div>
 
               <div className="relative w-full h-full max-w-sm flex items-center justify-center">
                 <AnimatePresence mode="popLayout">
@@ -230,22 +210,19 @@ export default function AboutSection() {
                           <span className="w-3 h-3 rounded-full bg-amber-500 absolute -top-1 animate-ping" />
                           <span className="w-2 h-2 rounded-full bg-amber-500" />
                         </div>
-                        <div className="w-full h-64 relative bg-zinc-100 border border-zinc-200 shadow-lg rounded-2xl overflow-hidden flex flex-col justify-between">
-                          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-zinc-200/20 to-transparent pointer-events-none z-10" />
-                          <div className="absolute inset-x-0 h-1 bg-brand-orange shadow-[0_0_20px_#e05e00] scanner-line z-20 pointer-events-none" />
-                          {[...Array(6)].map((_, i) => (
-                            <div key={i} className="flex-1 border-b border-zinc-200/50 flex gap-2 p-1.5 justify-center">
-                              <div className="w-1/4 h-full bg-zinc-200 rounded-sm" />
-                              <div className="w-2/5 h-full bg-zinc-200 rounded-md relative overflow-hidden">
-                                <div className="absolute inset-0 bg-cyan-500/10" />
-                              </div>
-                              <div className="w-1/4 h-full bg-zinc-200 rounded-sm" />
+                        <div className="w-full h-64 relative border border-zinc-300 shadow-xl rounded-lg overflow-hidden flex flex-col justify-between" style={{background: 'linear-gradient(135deg, #e8eaed 0%, #d4d8de 100%)'}}>
+                          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-white/20 pointer-events-none z-10" />
+                          <div className="absolute inset-x-0 h-0.5 bg-brand-orange shadow-[0_0_12px_#e05e00] scanner-line z-20 pointer-events-none" />
+                          {[...Array(8)].map((_, i) => (
+                            <div key={i} className="flex-1 border-b border-zinc-400/20 grid grid-cols-3 gap-px p-px">
+                              {[...Array(3)].map((_, j) => (
+                                <div key={j} className="h-full rounded-sm" style={{background: (i + j) % 3 === 0 ? 'rgba(186,230,253,0.5)' : 'rgba(255,255,255,0.3)'}} />
+                              ))}
                             </div>
                           ))}
                         </div>
-                        <div className="w-56 h-8 self-center bg-zinc-200 border border-zinc-300 rounded-lg shadow relative flex items-center justify-center">
-                          <span className="w-4 h-1 bg-emerald-500 rounded-full node-pulse absolute left-4" />
-                          <span className="text-[8px] font-mono text-zinc-500">FOUNDATION: REINFORCED CONCRETE B30</span>
+                        <div className="w-60 h-6 self-center mt-1 rounded border border-zinc-300 flex items-center justify-center" style={{background: 'linear-gradient(to right, #c8cbd0, #d4d7dc, #c8cbd0)'}}>
+                          <span className="text-[7px] font-mono text-zinc-600 tracking-wider">REINFORCED CONCRETE FOUNDATION</span>
                         </div>
                       </div>
                     </motion.div>
