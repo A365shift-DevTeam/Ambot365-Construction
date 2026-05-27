@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Ruler, Sparkles, Coins, Locate, Eye } from 'lucide-react';
+import { Ruler, Building2, Coins, MapPin, ArrowUpRight } from 'lucide-react';
 import { ProjectItem } from '../types';
 
 interface ProjectsProps {
@@ -13,135 +13,95 @@ export default function ProjectsShowcase({ onFocusProject, focusedProjectId }: P
 
   const projects: ProjectItem[] = [
     {
-      id: "apollo",
-      title: "The Apollo Spire",
-      category: "Metropolitan Supertall",
-      location: "Geneva, Switzerland",
-      completionYear: "2026",
-      height: "432 Metres",
-      floors: "102 Levels",
-      investment: "€850 Million",
-      description: "A 432-metre supertall tower built on a composite steel superstructure with post-tensioned floor slabs. Foundations anchored to Alpine granite bedrock at 42-metre depth via 800mm CFA piles designed to carry 180,000 kN vertical load.",
-      blueprintColor: "rgba(255, 0, 81, 0.3)"
+      id: "apollo", title: "Apollo Spire", category: "Supertall / Mixed-Use",
+      location: "Geneva, Switzerland", completionYear: "2026",
+      height: "432 m", floors: "102", investment: "€850M",
+      description: "A 432-metre composite steel and concrete tower founded on 42-metre-deep rock sockets. 102 storeys of Grade-A office, residences, and observatory. The tallest structure in the Alpine region.",
+      blueprintColor: "rgba(184,115,51,0.3)"
     },
     {
-      id: "ares",
-      title: "Ares Research Vertex",
-      category: "Aerospace Core Structure",
-      location: "Houston, USA",
-      completionYear: "2025",
-      height: "280 Metres",
-      floors: "64 Levels",
-      investment: "$420 Million",
-      description: "A 280-metre cantilever research institute with carbon-reinforced concrete core and structural steel diagrid facade. The first building in Houston to achieve 100% net energy generation through integrated solar thermal light-well systems.",
-      blueprintColor: "rgba(245, 158, 11, 0.3)"
+      id: "ares", title: "Ares Research Vertex", category: "Research & Aerospace",
+      location: "Houston, Texas", completionYear: "2025",
+      height: "280 m", floors: "64", investment: "$420M",
+      description: "Cantilevered research campus for aerospace and energy clients. Achieved 102% net-zero performance through integrated solar and geothermal systems. Structural steel diagrid engineered for 160 mph wind.",
+      blueprintColor: "rgba(184,115,51,0.3)"
     },
     {
-      id: "cronos",
-      title: "Cronos Eco-Citadel",
-      category: "Sustainable Smart Campus",
-      location: "Singapore",
-      completionYear: "2026",
-      height: "190 Metres",
-      floors: "45 Levels",
-      investment: "$340 Million",
-      description: "A 190-metre biophilic tower with a double-skin ventilated curtain wall facade, post-tensioned transfer slabs at levels 15 and 32, and high-velocity wind turbine arrays generating 3.2MW of on-site renewable power.",
-      blueprintColor: "rgba(6, 182, 212, 0.3)"
+      id: "cronos", title: "Cronos Eco-Citadel", category: "Sustainable Campus",
+      location: "Singapore", completionYear: "2026",
+      height: "190 m", floors: "45", investment: "$340M",
+      description: "Asia’s highest performing biophilic office tower. Double-skin ventilated façade, on-site 3.2 MW wind generation, and 42% reduction in embodied carbon versus baseline through mass-timber hybrid transfer structure.",
+      blueprintColor: "rgba(184,115,51,0.3)"
     }
   ];
 
   const activeProject = projects.find(p => p.id === activeTab) || projects[0];
 
-  const specs = [
-    { icon: Ruler,    label: 'Height',          value: activeProject.height },
-    { icon: Sparkles, label: 'Floors',           value: activeProject.floors },
-    { icon: Coins,    label: 'Total Investment', value: activeProject.investment },
-    { icon: Locate,   label: 'Location',         value: activeProject.location },
-  ];
-
   return (
-    <section id="projects" className="relative bg-white overflow-hidden border-t border-zinc-200">
-
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-24 relative z-10">
-
-        {/* ── Header + tabs ──────────────────────────── */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+    <section id="projects" className="bg-[#F8F7F4] border-b border-[#E6E4DE] py-20 md:py-24">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-y-6 mb-11">
           <div>
-            <div className="flex items-center gap-3 mb-5">
-              <span className="w-8 h-px bg-brand-orange" />
-              <span className="font-mono text-[10px] text-brand-orange uppercase tracking-[0.3em]">
-                Featured Projects
-              </span>
-            </div>
-            <h2 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl text-zinc-950 leading-[1.1] tracking-tight">
-              Landmark<br />
-              <span className="text-brand-orange">Structures</span>
-            </h2>
+            <div className="text-xs font-medium tracking-[0.2em] text-[#B87333]">SELECT LANDMARKS</div>
+            <h2 className="display-lg text-[58px] tracking-[-3.2px] leading-none mt-3">Signature projects.<br />Global impact.</h2>
           </div>
-
-          <div className="flex flex-col gap-1 lg:items-end">
-            {projects.map((proj, i) => (
-              <button
-                key={proj.id}
-                id={`project-tab-btn-${proj.id}`}
-                onClick={() => { setActiveTab(proj.id as any); onFocusProject(proj.id); }}
-                className={`group flex items-center gap-3 px-4 py-2.5 rounded-xl font-display font-bold text-xs uppercase tracking-widest transition-all cursor-pointer ${
-                  activeTab === proj.id
-                    ? 'bg-zinc-950 text-white'
-                    : 'text-zinc-400 hover:text-zinc-950'
-                }`}
-              >
-                <span className="font-mono text-[9px]">0{i + 1}</span>
-                <span>{proj.title}</span>
-                {activeTab === proj.id && <span className="w-1.5 h-1.5 rounded-full bg-brand-orange node-pulse" />}
-              </button>
-            ))}
-          </div>
+          <div className="text-xl text-[#0B111F]/70 max-w-md">Three projects that demonstrate our capability at the extreme end of complexity, scale, and sustainability ambition.</div>
         </div>
 
-        {/* ── Main panels ────────────────────────────── */}
-        <div className="w-full max-w-4xl mx-auto">
-          {/* Project spec sheet */}
-          <motion.div
-            key={activeProject.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="flex flex-col border border-zinc-200 rounded-2xl overflow-hidden bg-white shadow-sm"
-          >
-            <div className="px-8 py-5 border-b border-zinc-100 bg-zinc-50 flex items-center justify-between">
-              <span className="font-mono text-[10px] text-brand-orange uppercase tracking-[0.25em]">
-                {activeProject.category}
-              </span>
-              <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                {activeProject.completionYear}
-              </span>
+        <div className="flex gap-2 mb-8 flex-wrap">
+          {projects.map((p, i) => (
+            <button
+              key={p.id}
+              onClick={() => { setActiveTab(p.id as any); onFocusProject(p.id); }}
+              className={`px-6 py-3 rounded-full text-sm transition border ${activeTab === p.id ? 'bg-[#0B111F] text-white border-[#0B111F]' : 'border-[#E6E4DE] hover:bg-white text-[#0B111F]/70'}`}
+            >
+              {p.title}
+            </button>
+          ))}
+        </div>
+
+        <motion.div
+          key={activeProject.id}
+          initial={{ opacity: 0.6, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28 }}
+          className="border border-[#E6E4DE] bg-white rounded-3xl overflow-hidden"
+        >
+          <div className="px-9 pt-8 pb-7 border-b border-[#E6E4DE] flex flex-wrap justify-between gap-y-2 items-center bg-[#F8F7F4]">
+            <div>
+              <div className="font-medium text-xl tracking-tight">{activeProject.title}</div>
+              <div className="text-sm text-[#0B111F]/50 mt-px">{activeProject.category}</div>
+            </div>
+            <div className="text-right text-sm font-mono text-[#0B111F]/50">{activeProject.location} — {activeProject.completionYear}</div>
+          </div>
+
+          <div className="p-9 md:p-12 grid md:grid-cols-5 gap-x-9 gap-y-9 text-[15px]">
+            <div className="md:col-span-3 text-[#0B111F]/80 leading-relaxed text-[15.5px] pr-2">
+              {activeProject.description}
             </div>
 
-            <div className="px-8 pt-8 pb-6 border-b border-zinc-100">
-              <h3 className="font-display font-bold text-3xl md:text-4xl text-zinc-950 tracking-tight leading-tight mb-5">
-                {activeProject.title}
-              </h3>
-              <p className="text-zinc-600 text-sm md:text-base leading-relaxed max-w-3xl">
-                {activeProject.description}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-zinc-100 bg-zinc-50/30">
-              {specs.map(({ icon: Icon, label, value }, i) => (
-                <div key={i} className="px-6 py-6 flex flex-col gap-2.5">
-                  <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Icon className="w-3.5 h-3.5 text-brand-orange" />
-                    {label}
-                  </span>
-                  <span className="font-display font-bold text-lg md:text-xl text-zinc-950 tracking-tight leading-none">
-                    {value}
-                  </span>
+            <div className="md:col-span-2 grid grid-cols-2 gap-x-8 gap-y-8 text-sm pt-1">
+              {[
+                { icon: Ruler, label: "HEIGHT", value: activeProject.height },
+                { icon: Building2, label: "FLOORS", value: activeProject.floors },
+                { icon: Coins, label: "INVESTMENT", value: activeProject.investment },
+                { icon: MapPin, label: "LOCATION", value: activeProject.location.split(',')[0] },
+              ].map((item, idx) => (
+                <div key={idx} className="border-l-2 border-[#B87333] pl-5">
+                  <div className="uppercase text-xs tracking-[1.5px] text-[#0B111F]/45">{item.label}</div>
+                  <div className="mt-1 font-semibold tracking-tight text-xl text-[#0B111F]">{item.value}</div>
                 </div>
               ))}
             </div>
-          </motion.div>
-        </div>
+          </div>
+
+          <div className="border-t border-[#E6E4DE] px-9 py-5 bg-[#F8F7F4] flex items-center justify-between text-sm">
+            <div className="text-[#0B111F]/60">View project documentation and live digital twin available under NDA.</div>
+            <button onClick={() => onFocusProject(activeProject.id)} className="flex items-center gap-2 text-[#B87333] font-medium tracking-wider text-xs">
+              HIGHLIGHT IN VIEWER <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

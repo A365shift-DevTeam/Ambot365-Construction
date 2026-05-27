@@ -7,6 +7,7 @@ interface ThreeCanvasProps {
   renderMode: 'wireframe' | 'xray' | 'thermal' | 'solid' | 'hologram';
   focusedServiceId: string | null;
   focusedProjectId: string | null;
+  enterpriseMode?: boolean; // Premium presentation mode for hero + viewer
 }
 
 export default function ThreeCanvas({
@@ -15,16 +16,17 @@ export default function ThreeCanvas({
   renderMode,
   focusedServiceId,
   focusedProjectId,
+  enterpriseMode = false,
 }: ThreeCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   // Keep live refs to avoid re-initializing the Three scene when props update.
-  const propsRef = useRef({ scrollProgress, activeStage, renderMode, focusedServiceId, focusedProjectId });
+  const propsRef = useRef({ scrollProgress, activeStage, renderMode, focusedServiceId, focusedProjectId, enterpriseMode: false });
   
   useEffect(() => {
-    propsRef.current = { scrollProgress, activeStage, renderMode, focusedServiceId, focusedProjectId };
-  }, [scrollProgress, activeStage, renderMode, focusedServiceId, focusedProjectId]);
+    propsRef.current = { scrollProgress, activeStage, renderMode, focusedServiceId, focusedProjectId, enterpriseMode: !!enterpriseMode };
+  }, [scrollProgress, activeStage, renderMode, focusedServiceId, focusedProjectId, enterpriseMode]);
 
   // Track FPS and active telemetry for display in our UI
   const [telemetry, setTelemetry] = useState({
@@ -900,51 +902,58 @@ export default function ThreeCanvas({
     };
   }, []);
 
+  const isEnterprise = propsRef.current.enterpriseMode;
+
   return (
-    <div id="three-container" ref={containerRef} className="relative w-full h-full cursor-grab active:cursor-grabbing select-none overflow-hidden rounded-3xl" style={{ touchAction: 'none' }}>
+    <div id="three-container" ref={containerRef} className={`relative w-full h-full cursor-grab active:cursor-grabbing select-none overflow-hidden ${isEnterprise ? '' : 'rounded-3xl'}`} style={{ touchAction: 'none' }}>
       <canvas id="architectural-3d-canvas" ref={canvasRef} className="w-full h-full block absolute inset-0 z-10" />
       
-      {/* Sci-fi Overlay Blueprint Framing */}
-      <div className="absolute inset-0 z-0 blueprint-grid pointer-events-none opacity-40 rounded-3xl" />
-      <div className="absolute inset-0 z-0 pointer-events-none rounded-3xl border border-brand-orange/20" />
-      
-      {/* Sub-corner sci-fi calibration ticks */}
-      <div className="absolute top-4 left-4 z-20 pointer-events-none font-mono text-[9px] text-brand-orange/50 tracking-wider flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-brand-orange node-pulse inline-block" />
-        WebGL_RENDER_GRID: T-09
-      </div>
-      <div className="absolute top-4 right-4 z-20 pointer-events-none font-mono text-[9px] text-white/40 tracking-wider">
-        SYS_STATUS: ACTIVE
-      </div>
-      <div className="absolute bottom-4 left-4 z-20 pointer-events-none font-mono text-[9px] text-white/40 tracking-wider">
-        SECURE_FEED: CALIBRATED
-      </div>
+      {/* Refined Blueprint Overlay - always tasteful */}
+      <div className={`absolute inset-0 z-0 pointer-events-none ${isEnterprise ? 'blueprint-grid-dark opacity-[0.55]' : 'blueprint-grid opacity-40 rounded-3xl'}`} />
+      {!isEnterprise && (
+        <div className="absolute inset-0 z-0 pointer-events-none rounded-3xl border border-[#B87333]/15" />
+      )}
 
-      {/* Real-time WebGL HUD Overlay */}
-      <div className="absolute bottom-5 right-5 z-20 pointer-events-none lg:grid hidden grid-cols-2 gap-x-4 gap-y-1.5 glass-panel px-4 py-3 rounded-xl border border-white/5 font-mono text-[10px] text-zinc-300">
-        <div className="text-zinc-500 uppercase tracking-wider">Engine:</div>
-        <div className="text-right text-brand-orange">THREE_JS_v152</div>
-        
-        <div className="text-zinc-500 uppercase tracking-wider border-t border-zinc-900 pt-1">FPS Meter:</div>
-        <div className={`text-right font-medium border-t border-zinc-900 pt-1 ${telemetry.fps >= 55 ? 'text-emerald-400' : 'text-amber-500'}`}>
-          {telemetry.fps} FPS
-        </div>
-        
-        <div className="text-zinc-500 uppercase tracking-wider">Vertices:</div>
-        <div className="text-right text-cyan-400">{(telemetry.vertexCount / 1000).toFixed(1)}k</div>
-        
-        <div className="text-zinc-500 uppercase tracking-wider">Draw Calls:</div>
-        <div className="text-right text-yellow-400">{telemetry.drawCalls}</div>
+      {/* Enterprise Minimal HUD — only show refined version in hero mode */}
+      {isEnterprise && (
+        <>
+          <div className="absolute top-6 left-6 z-20 pointer-events-none viewer-hud text-[#C5A46E]/70 flex items-center gap-2">
+            <div className="w-px h-3 bg-[#C5A46E]/40" />
+            REAL-TIME STRUCTURAL SIM
+          </div>
+          <div className="absolute bottom-6 left-6 z-20 pointer-events-none viewer-hud text-white/50">
+            DRAG TO ORBIT  •  SCROLL TO ADVANCE CONSTRUCTION
+          </div>
+        </>
+      )}
 
-        <div className="text-zinc-500 uppercase tracking-wider">Active Meshes:</div>
-        <div className="text-right text-zinc-300">{telemetry.activeElements}</div>
+      {/* Legacy HUD only for non-enterprise sections (kept for compatibility) */}
+      {!isEnterprise && (
+        <>
+          <div className="absolute top-4 left-4 z-20 pointer-events-none font-mono text-[9px] text-[#B87333]/60 tracking-wider flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B87333] node-pulse inline-block" />
+            WEBGL_RENDER_GRID
+          </div>
+          <div className="absolute bottom-5 right-5 z-20 pointer-events-none lg:grid hidden grid-cols-2 gap-x-4 gap-y-1.5 glass-panel px-4 py-3 rounded-xl border border-white/5 font-mono text-[10px] text-zinc-300">
+            <div className="text-zinc-500 uppercase tracking-wider">Engine:</div>
+            <div className="text-right text-[#B87333]">THREE.JS R184</div>
+            
+            <div className="text-zinc-500 uppercase tracking-wider border-t border-zinc-900 pt-1">FPS:</div>
+            <div className={`text-right font-medium border-t border-zinc-900 pt-1 ${telemetry.fps >= 55 ? 'text-emerald-400' : 'text-amber-500'}`}>
+              {telemetry.fps}
+            </div>
+            
+            <div className="text-zinc-500 uppercase tracking-wider">Vertices:</div>
+            <div className="text-right text-cyan-400">{(telemetry.vertexCount / 1000).toFixed(1)}k</div>
+            
+            <div className="text-zinc-500 uppercase tracking-wider">Draw Calls:</div>
+            <div className="text-right text-yellow-400">{telemetry.drawCalls}</div>
 
-        <div className="text-zinc-500 uppercase tracking-wider">Wind Velocity:</div>
-        <div className="text-right text-orange-400">{telemetry.windSpeed}</div>
-
-        <div className="text-zinc-500 uppercase tracking-wider border-t border-zinc-900 pt-1">Vert Load:</div>
-        <div className="text-right text-zinc-300 border-t border-zinc-900 pt-1 font-semibold">{telemetry.structuralLoad}</div>
-      </div>
+            <div className="text-zinc-500 uppercase tracking-wider border-t border-zinc-900 pt-1">Structural Load:</div>
+            <div className="text-right text-[#B87333] border-t border-zinc-900 pt-1 font-semibold">{telemetry.structuralLoad}</div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

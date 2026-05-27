@@ -1,67 +1,108 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Poppins", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  --color-brand-orange: #FF8C00;
-  --color-brand-amber: #FFB800;
-  --color-brand-cyan: #00D4FF;
-  --color-dark-bg: #070A10;
-  --color-dark-surface: #0F1520;
-  --color-dark-card: #141B2D;
-  --color-dark-border: #1E2A42;
+  /* Enterprise Construction Palette - Sophisticated & Authoritative */
+  --color-brand-copper: #B87333;
+  --color-brand-bronze: #8B5E3C;
+  --color-brand-orange: #C17F3E;
+  --color-brand-amber: #D4A017;
+  --color-brand-gold: #C5A46E;
+  --color-brand-cyan: #2A9D9F;
+
+  --color-ink: #0B111F;
+  --color-ink-2: #121A2B;
+  --color-slate: #1E2937;
+  --color-slate-2: #334155;
+  --color-surface: #F8F7F4;
+  --color-surface-2: #F1F0EB;
+  --color-card: #FFFFFF;
+  --color-border: #E6E4DE;
+  --color-border-strong: #C9C5B8;
+  
+  --color-dark-bg: #0A101F;
+  --color-dark-surface: #111827;
+  --color-dark-card: #1A2332;
+  --color-dark-border: #2C3648;
 }
 
-/* ─── Scrollbar ──────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #FF8C00; }
+/* ─── Enterprise Scrollbar ───────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F1F0EB; }
+::-webkit-scrollbar-thumb { background: #C9C5B8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #B87333; }
 
-/* ─── Glass Panels ───────────────────────────────── */
+/* Dark mode scrollbar for 3D viewer areas */
+.dark-scroll::-webkit-scrollbar-track { background: #1A2332; }
+.dark-scroll::-webkit-scrollbar-thumb { background: #3F4A5C; }
+.dark-scroll::-webkit-scrollbar-thumb:hover { background: #B87333; }
+
+/* ─── Enterprise Glass & Surfaces ────────────────── */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 8px 36px 0 rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(230, 228, 222, 0.85);
+  box-shadow: 0 10px 40px -4px rgba(11, 17, 31, 0.08), 0 2px 8px -2px rgba(11, 17, 31, 0.04);
 }
 
-.glass-panel-orange {
-  background: rgba(255, 140, 0, 0.04);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 140, 0, 0.22);
-  box-shadow: 0 8px 36px 0 rgba(255, 140, 0, 0.05);
+.glass-panel-dark {
+  background: rgba(17, 24, 39, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(44, 54, 72, 0.6);
+  box-shadow: 0 10px 40px -4px rgba(0, 0, 0, 0.3);
 }
 
 .glass-panel-heavy {
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 16px 50px 0 rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(230, 228, 222, 0.7);
+  box-shadow: 0 20px 60px -8px rgba(11, 17, 31, 0.1);
 }
 
-/* ─── Blueprint grids ────────────────────────────── */
+/* Premium subtle card treatment */
+.enterprise-card {
+  transition: transform 0.2s cubic-bezier(0.23, 1.0, 0.32, 1), 
+              box-shadow 0.2s cubic-bezier(0.23, 1.0, 0.32, 1),
+              border-color 0.2s ease;
+  border: 1px solid var(--color-border);
+}
+.enterprise-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 50px -12px rgba(11, 17, 31, 0.12), 0 8px 16px -4px rgba(11, 17, 31, 0.06);
+  border-color: var(--color-border-strong);
+}
+
+/* ─── Enterprise Blueprint & Technical Grids ─────── */
 .blueprint-grid {
-  background-size: 40px 40px;
+  background-size: 42px 42px;
   background-image:
-    linear-gradient(to right, rgba(255, 140, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 140, 0, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(184, 115, 51, 0.065) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(184, 115, 51, 0.065) 1px, transparent 1px);
 }
 
 .blueprint-grid-fine {
-  background-size: 10px 10px;
+  background-size: 9px 9px;
   background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+    linear-gradient(to right, rgba(11, 17, 31, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 17, 31, 0.035) 1px, transparent 1px);
 }
 
-/* ─── Animations ─────────────────────────────────── */
+/* Dark variant for 3D canvas overlays */
+.blueprint-grid-dark {
+  background-size: 42px 42px;
+  background-image:
+    linear-gradient(to right, rgba(197, 164, 110, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(197, 164, 110, 0.08) 1px, transparent 1px);
+}
+
+/* ─── Premium Enterprise Animations ──────────────── */
 @keyframes blueprintScan {
   0%   { transform: translateY(-100%); }
   50%  { transform: translateY(100%);  }
@@ -70,8 +111,8 @@
 .scanner-line { animation: blueprintScan 6s ease-in-out infinite; }
 
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.45; filter: drop-shadow(0 0 3px rgba(255,140,0,.55)); }
-  50%       { opacity: 1;    filter: drop-shadow(0 0 16px rgba(255,140,0,.95)); }
+  0%, 100% { opacity: 0.45; filter: drop-shadow(0 0 3px rgba(184,115,51,.55)); }
+  50%       { opacity: 1;    filter: drop-shadow(0 0 16px rgba(184,115,51,.95)); }
 }
 .node-pulse { animation: pulseGlow 2.5s infinite ease-in-out; }
 
@@ -85,7 +126,7 @@
   position: absolute;
   top: 0; height: 100%;
   width: 160px;
-  background: linear-gradient(to right, transparent, rgba(255,140,0,.14), transparent);
+  background: linear-gradient(to right, transparent, rgba(184,115,51,.18), transparent);
   transform: skewX(-25deg);
   animation: laserSweep 4s infinite ease-in-out;
 }
@@ -99,6 +140,77 @@
 @keyframes shimmer {
   0%   { background-position: -200% center; }
   100% { background-position:  200% center; }
+}
+
+@keyframes statCount {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subtleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* Enterprise metric display */
+.metric-value {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Refined section header treatment */
+.section-eyebrow {
+  letter-spacing: 0.2em;
+  font-weight: 500;
+}
+
+/* Premium button styles */
+.btn-enterprise {
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.btn-enterprise-primary {
+  background: #B87333;
+  color: white;
+  border: 1px solid #B87333;
+}
+.btn-enterprise-primary:hover {
+  background: #8B5E3C;
+  border-color: #8B5E3C;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -4px rgba(184, 115, 51, 0.3);
+}
+.btn-enterprise-secondary {
+  background: transparent;
+  color: #0B111F;
+  border: 1px solid #C9C5B8;
+}
+.btn-enterprise-secondary:hover {
+  background: #0B111F;
+  color: white;
+  border-color: #0B111F;
+}
+
+/* 3D Viewer HUD chrome */
+.viewer-hud {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.viewer-control {
+  transition: all 0.1s ease;
+}
+.viewer-control:hover {
+  background-color: rgba(255,255,255,0.08);
+  color: #C5A46E;
+  border-color: rgba(197, 164, 110, 0.4);
+}
+.viewer-control.active {
+  background-color: #B87333;
+  color: white;
+  border-color: #B87333;
 }
 
 /* ─── Text effects ───────────────────────────────── */
@@ -140,20 +252,46 @@ textarea::placeholder {
   color: rgba(148, 163, 184, 0.7);
 }
 
-/* ─── Accent border glow ─────────────────────────── */
-.border-glow-orange {
-  box-shadow: 0 0 0 1px rgba(255,140,0,.3), 0 0 12px rgba(255,140,0,.1);
+/* ─── Enterprise Focus & Accessibility ───────────── */
+:focus-visible {
+  outline: 2px solid #B87333;
+  outline-offset: 3px;
+}
+button:focus-visible, a:focus-visible {
+  outline-offset: 2px;
 }
 
-/* ─── Card shine on hover ────────────────────────── */
-.card-shine {
-  position: relative;
-  overflow: hidden;
+/* ─── Refined Typography Scale ───────────────────── */
+.display-xl {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
 }
-.card-shine::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 60%);
-  pointer-events: none;
+
+.display-lg {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
 }
+
+/* ─── Technical Data Table Styles ────────────────── */
+.tech-table td {
+  font-feature-settings: "tnum";
+}
+
+/* ─── Smooth Section Dividers ────────────────────── */
+.divider-subtle {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #E6E4DE 18%, #E6E4DE 82%, transparent);
+}
+
+/* ─── 3D Canvas Container Polish ─────────────────── */
+#three-container {
+  box-shadow: 0 4px 60px -10px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+/* Remove old orange glows */
+.glow-text-orange { text-shadow: none; }
+.glow-text-cyan { text-shadow: none; }
