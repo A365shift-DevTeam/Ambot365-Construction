@@ -6,7 +6,7 @@ export default function HeroBackgroundFrames() {
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const imagesRef = useRef<HTMLImageElement[]>([]);
 
-  const frameCount = 176;
+  const frameCount = 156;
 
   // Preload images
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function HeroBackgroundFrames() {
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
       img.src = `/frames/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
-      img.onload = () => {
+      img.onload = img.onerror = () => {
         loaded++;
         if (loaded === frameCount) {
           setImagesPreloaded(true);
