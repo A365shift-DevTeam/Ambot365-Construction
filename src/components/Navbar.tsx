@@ -53,16 +53,15 @@ export default function Navbar({ currentSection, onNavigate }: NavbarProps) {
           onClick={() => handleLinkClick('hero')}
           className="flex items-center gap-2.5 cursor-pointer group"
         >
-          <div className="relative flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-brand-orange to-amber-500 overflow-hidden shadow-md group-hover:shadow-brand-orange/20 transition-all">
-            <Hammer id="logo-hammer-icon" className="w-4.5 h-4.5 text-white font-bold transform -rotate-12 group-hover:rotate-12 transition-transform duration-300" />
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+          <div className="relative flex items-center justify-center w-9 h-9 rounded-lg overflow-hidden shadow-md group-hover:shadow-brand-orange/20 transition-all">
+            <img id="logo-icon" src="/favicon.png" alt="Ambot365 Logo" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col">
             <span className="font-display font-bold text-sm tracking-[0.18em] uppercase text-zinc-950 group-hover:text-brand-orange transition-colors">
               Ambot365
             </span>
             <span className="font-mono text-[8px] text-zinc-500 tracking-[0.25em] -mt-1 uppercase">
-              Engineering Group
+              CONSTRUCTION
             </span>
           </div>
         </div>
@@ -92,9 +91,9 @@ export default function Navbar({ currentSection, onNavigate }: NavbarProps) {
         <div className="hidden lg:flex items-center gap-4">
           <div className="flex flex-col items-end font-mono text-[9px] text-zinc-500">
             <span className="text-zinc-700 font-semibold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" /> +1 (800) 555-0365
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" /> +91 987654321
             </span>
-            <span>info@ambot365.com</span>
+            <span>connect@ambot365.in</span>
           </div>
 
           <button
@@ -177,7 +176,7 @@ export default function Navbar({ currentSection, onNavigate }: NavbarProps) {
             </div>
           </div>
           <div className="text-center font-mono text-[8px] text-zinc-400 uppercase tracking-widest mt-2">
-            © 2026 AMBOT365 ENGINEERING GROUP. ALL RIGHTS RESERVED.
+            © 2026 AMBOT365 CONSTRUCTION GROUP. ALL RIGHTS RESERVED.
           </div>
         </div>
       </div>

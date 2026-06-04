@@ -87,12 +87,12 @@ export default function EnterpriseFramesHero({ onNavigate }: EnterpriseFramesHer
 
         {/* Minimal top-left logo only — very restrained */}
         <div className="absolute top-8 left-8 md:left-12 z-30 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-md bg-[#B87333] flex items-center justify-center shadow-sm">
-            <span className="text-white text-[14px] font-bold tracking-[-1.5px]">A</span>
+          <div className="w-8 h-8 rounded-md overflow-hidden shadow-sm">
+            <img src="/favicon.png" alt="Ambot365 Logo" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col -space-y-px">
             <div className="font-display font-semibold tracking-[0.2em] text-[#0B111F] text-[13px] md:text-white">AMBOT365</div>
-            <div className="text-[8px] text-[#0B111F]/45 md:text-white/70 tracking-[0.22em]">ENGINEERING</div>
+            <div className="text-[8px] text-[#0B111F]/45 md:text-white/70 tracking-[0.22em]">CONSTRUCTION</div>
           </div>
         </div>
 

@@ -45,12 +45,12 @@ export default function EnterpriseNavbar({ currentSection, onNavigate }: Enterpr
             onClick={() => handleLinkClick('hero')} 
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-8 h-8 rounded bg-[#B87333] flex items-center justify-center">
-              <span className="text-white font-bold text-xl tracking-[-1.5px] leading-none mt-0.5">A</span>
+            <div className="w-8 h-8 rounded overflow-hidden">
+              <img src="/favicon.png" alt="Ambot365 Logo" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col justify-center -space-y-0.5">
               <div className="font-display font-semibold tracking-[0.18em] text-[#0B111F] text-sm group-hover:text-[#B87333] transition-colors">AMBOT365</div>
-              <div className="text-[9px] text-[#0B111F]/50 tracking-[0.22em] font-medium">ENGINEERING</div>
+              <div className="text-[9px] text-[#0B111F]/50 tracking-[0.22em] font-medium">CONSTRUCTION</div>
             </div>
           </div>
 
@@ -111,7 +111,7 @@ export default function EnterpriseNavbar({ currentSection, onNavigate }: Enterpr
             ))}
           </div>
           <div className="pt-6 text-xs text-[#0B111F]/50 tracking-widest">
-            AMBOT365 ENGINEERING GROUP<br />© {new Date().getFullYear()}. ALL RIGHTS RESERVED.
+            AMBOT365 CONSTRUCTION GROUP<br />© {new Date().getFullYear()}. ALL RIGHTS RESERVED.
           </div>
         </div>
       )}

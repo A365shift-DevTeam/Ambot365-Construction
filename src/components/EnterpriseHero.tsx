@@ -62,12 +62,12 @@ export default function EnterpriseHero({ onNavigate }: EnterpriseHeroProps) {
         <div className="absolute top-0 left-0 right-0 z-40 px-6 md:px-10 pt-8 pb-4 flex items-center justify-between pointer-events-none">
           <div className="flex items-center gap-3 pointer-events-auto">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-md bg-[#B87333] flex items-center justify-center">
-                <span className="text-white text-[13px] font-bold tracking-[-1px]">A</span>
+              <div className="w-8 h-8 rounded-md overflow-hidden">
+                <img src="/favicon.png" alt="Ambot365 Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="font-display text-[13px] font-semibold tracking-[0.18em] text-white">AMBOT365</div>
-                <div className="text-[9px] text-white/50 -mt-0.5 tracking-[0.2em]">ENGINEERING GROUP</div>
+                <div className="text-[9px] text-white/50 -mt-0.5 tracking-[0.2em]">CONSTRUCTION</div>
               </div>
             </div>
           </div>

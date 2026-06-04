@@ -95,7 +95,7 @@ export default function App() {
             </div>
 
             <h1 className="display-xl text-[58px] md:text-[76px] leading-[0.92] tracking-[-4.2px] text-[#0B111F] mb-7">
-              Engineering<br />landmarks that last.
+              Ambot365<br />Construction 
             </h1>
 
             <p className="max-w-[520px] text-[15.5px] text-[#0B111F]/70 leading-relaxed mb-9">
@@ -201,7 +201,7 @@ export default function App() {
           <div className="md:col-span-5">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-7 h-7 rounded bg-[#B87333] flex items-center justify-center text-white text-lg font-bold tracking-[-1.5px]">A</div>
-              <div className="font-display text-[#0B111F] tracking-[0.2em] text-sm">AMBOT365 ENGINEERING GROUP</div>
+              <div className="font-display text-[#0B111F] tracking-[0.2em] text-sm">AMBOT365 CONSTRUCTION GROUP</div>
             </div>
             <div className="max-w-xs text-[#0B111F]/60">
               A global leader in complex structures, infrastructure, and mission-critical facilities.
@@ -210,25 +210,26 @@ export default function App() {
 
           <div className="md:col-span-3 text-sm space-y-1.5">
             <div className="text-[#0B111F]/40 uppercase tracking-widest text-xs mb-3">OFFICES</div>
-            <div>London • New York • Singapore</div>
-            <div>Geneva • Houston • Dubai • Sydney</div>
+            {/* <div>London • New York • Singapore</div>
+            <div>Geneva • Houston • Dubai • Sydney</div> */}
+            <div>Coimbatore</div>
           </div>
 
           <div className="md:col-span-4 text-sm">
             <div className="text-[#0B111F]/40 uppercase tracking-widest text-xs mb-3">CONTACT</div>
-            <div className="text-[#0B111F]">+1 800 555 0365</div>
-            <div>projects@ambot365.com</div>
+            <div className="text-[#0B111F]">+91 97509 45792</div>
+            <div>Connect@ambot365.in</div>
             <div className="mt-4 text-[12px] text-[#0B111F]/40">For RFPs and confidential briefings, contact our Director of Business Development.</div>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-6 md:px-10 mt-16 pt-9 border-t border-[#E6E4DE] flex flex-col md:flex-row gap-y-2 justify-between text-xs tracking-widest text-[#0B111F]/50">
-          <div>© {new Date().getFullYear()} AMBOT365 ENGINEERING GROUP. ALL RIGHTS RESERVED.</div>
+          <div>© {new Date().getFullYear()} AMBOT365 CONSTRUCTION  GROUP. ALL RIGHTS RESERVED.</div>
           <div className="flex gap-x-6">
             <span>PRIVACY</span>
             <span>LEGAL</span>
             <span>MODERN SLAVERY STATEMENT</span>
-            <span>SUSTAINABILITY REPORT 2025</span>
+            <span>SUSTAINABILITY REPORT 2026</span>
           </div>
         </div>
       </footer>
