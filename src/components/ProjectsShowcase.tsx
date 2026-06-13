@@ -38,22 +38,22 @@ export default function ProjectsShowcase({ onFocusProject, focusedProjectId }: P
   const activeProject = projects.find(p => p.id === activeTab) || projects[0];
 
   return (
-    <section id="projects" className="bg-[#F8F7F4] border-b border-[#E6E4DE] py-20 md:py-24">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-y-6 mb-11">
+    <section id="projects" className="bg-[#F8F7F4] border-b border-[#E6E4DE] py-14 sm:py-16 md:py-20 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-y-4 sm:gap-y-6 mb-8 sm:mb-11">
           <div>
             <div className="text-xs font-medium tracking-[0.2em] text-[#B87333]">SELECT LANDMARKS</div>
-            <h2 className="display-lg text-[58px] tracking-[-3.2px] leading-none mt-3">Signature projects.<br />Global impact.</h2>
+            <h2 className="display-lg text-[32px] sm:text-[44px] md:text-[58px] tracking-[-2px] sm:tracking-[-2.6px] md:tracking-[-3.2px] leading-none mt-2 sm:mt-3">Signature projects.<br />Global impact.</h2>
           </div>
-          <div className="text-xl text-[#0B111F]/70 max-w-md">Three projects that demonstrate our capability at the extreme end of complexity, scale, and sustainability ambition.</div>
+          <div className="text-base sm:text-lg md:text-xl text-[#0B111F]/70 max-w-md">Three projects that demonstrate our capability at the extreme end of complexity, scale, and sustainability ambition.</div>
         </div>
 
-        <div className="flex gap-2 mb-8 flex-wrap">
+        <div className="flex gap-1.5 sm:gap-2 mb-6 sm:mb-8 flex-wrap">
           {projects.map((p, i) => (
             <button
               key={p.id}
               onClick={() => { setActiveTab(p.id as any); onFocusProject(p.id); }}
-              className={`px-6 py-3 rounded-full text-sm transition border ${activeTab === p.id ? 'bg-[#0B111F] text-white border-[#0B111F]' : 'border-[#E6E4DE] hover:bg-white text-[#0B111F]/70'}`}
+              className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm transition border ${activeTab === p.id ? 'bg-[#0B111F] text-white border-[#0B111F]' : 'border-[#E6E4DE] hover:bg-white text-[#0B111F]/70'}`}
             >
               {p.title}
             </button>
@@ -65,39 +65,39 @@ export default function ProjectsShowcase({ onFocusProject, focusedProjectId }: P
           initial={{ opacity: 0.6, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28 }}
-          className="border border-[#E6E4DE] bg-white rounded-3xl overflow-hidden"
+          className="border border-[#E6E4DE] bg-white rounded-2xl sm:rounded-3xl overflow-hidden"
         >
-          <div className="px-9 pt-8 pb-7 border-b border-[#E6E4DE] flex flex-wrap justify-between gap-y-2 items-center bg-[#F8F7F4]">
+          <div className="px-5 sm:px-9 pt-5 sm:pt-8 pb-4 sm:pb-7 border-b border-[#E6E4DE] flex flex-col sm:flex-row sm:flex-wrap justify-between gap-y-1 sm:gap-y-2 items-start sm:items-center bg-[#F8F7F4]">
             <div>
-              <div className="font-medium text-xl tracking-tight">{activeProject.title}</div>
-              <div className="text-sm text-[#0B111F]/50 mt-px">{activeProject.category}</div>
+              <div className="font-medium text-base sm:text-xl tracking-tight">{activeProject.title}</div>
+              <div className="text-xs sm:text-sm text-[#0B111F]/50 mt-px">{activeProject.category}</div>
             </div>
-            <div className="text-right text-sm font-mono text-[#0B111F]/50">{activeProject.location} — {activeProject.completionYear}</div>
+            <div className="text-xs sm:text-sm font-mono text-[#0B111F]/50">{activeProject.location} — {activeProject.completionYear}</div>
           </div>
 
-          <div className="p-9 md:p-12 grid md:grid-cols-5 gap-x-9 gap-y-9 text-[15px]">
-            <div className="md:col-span-3 text-[#0B111F]/80 leading-relaxed text-[15.5px] pr-2">
+          <div className="p-5 sm:p-9 md:p-12 grid md:grid-cols-5 gap-x-6 sm:gap-x-9 gap-y-6 sm:gap-y-9 text-[14px] sm:text-[15px]">
+            <div className="md:col-span-3 text-[#0B111F]/80 leading-relaxed text-[14px] sm:text-[15.5px] pr-2">
               {activeProject.description}
             </div>
 
-            <div className="md:col-span-2 grid grid-cols-2 gap-x-8 gap-y-8 text-sm pt-1">
+            <div className="md:col-span-2 grid grid-cols-2 gap-x-5 sm:gap-x-8 gap-y-5 sm:gap-y-8 text-sm pt-1">
               {[
                 { icon: Ruler, label: "HEIGHT", value: activeProject.height },
                 { icon: Building2, label: "FLOORS", value: activeProject.floors },
                 { icon: Coins, label: "INVESTMENT", value: activeProject.investment },
                 { icon: MapPin, label: "LOCATION", value: activeProject.location.split(',')[0] },
               ].map((item, idx) => (
-                <div key={idx} className="border-l-2 border-[#B87333] pl-5">
-                  <div className="uppercase text-xs tracking-[1.5px] text-[#0B111F]/45">{item.label}</div>
-                  <div className="mt-1 font-semibold tracking-tight text-xl text-[#0B111F]">{item.value}</div>
+                <div key={idx} className="border-l-2 border-[#B87333] pl-3 sm:pl-5">
+                  <div className="uppercase text-[10px] sm:text-xs tracking-[1.5px] text-[#0B111F]/45">{item.label}</div>
+                  <div className="mt-1 font-semibold tracking-tight text-lg sm:text-xl text-[#0B111F]">{item.value}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="border-t border-[#E6E4DE] px-9 py-5 bg-[#F8F7F4] flex items-center justify-between text-sm">
-            <div className="text-[#0B111F]/60">View project documentation and live digital twin available under NDA.</div>
-            <button onClick={() => onFocusProject(activeProject.id)} className="flex items-center gap-2 text-[#B87333] font-medium tracking-wider text-xs">
+          <div className="border-t border-[#E6E4DE] px-5 sm:px-9 py-4 sm:py-5 bg-[#F8F7F4] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-sm">
+            <div className="text-[#0B111F]/60 text-xs sm:text-sm">View project documentation and live digital twin available under NDA.</div>
+            <button onClick={() => onFocusProject(activeProject.id)} className="flex items-center gap-2 text-[#B87333] font-medium tracking-wider text-xs whitespace-nowrap">
               HIGHLIGHT IN VIEWER <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>

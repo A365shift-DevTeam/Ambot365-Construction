@@ -31,28 +31,28 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="border-b border-[#E6E4DE] bg-white py-20 md:py-24">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
+    <section id="contact" className="border-b border-[#E6E4DE] bg-white py-14 sm:py-16 md:py-20 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+        <div className="grid lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-16">
           <div className="lg:col-span-5">
-            <div className="uppercase tracking-[0.22em] text-[#B87333] text-xs mb-3">NEXT STEP</div>
-            <h2 className="display-lg text-[58px] leading-[0.96] tracking-[-3.2px]">Let’s define<br />your project.</h2>
-            <p className="mt-6 text-[#0B111F]/70 text-[15px] max-w-sm">Receive a confidential preliminary programme, risk register, and budget indication within two working days.</p>
+            <div className="uppercase tracking-[0.22em] text-[#B87333] text-xs mb-2 sm:mb-3">NEXT STEP</div>
+            <h2 className="display-lg text-[34px] sm:text-[46px] md:text-[58px] leading-[0.96] tracking-[-2px] sm:tracking-[-2.8px] md:tracking-[-3.2px]">Let’s define<br />your project.</h2>
+            <p className="mt-4 sm:mt-6 text-[#0B111F]/70 text-[14px] sm:text-[15px] max-w-sm">Receive a confidential preliminary programme, risk register, and budget indication within two working days.</p>
           </div>
 
           <div className="lg:col-span-7">
-            <div className="border border-[#E6E4DE] rounded-3xl bg-[#F8F7F4] p-9 md:p-11">
+            <div className="border border-[#E6E4DE] rounded-2xl sm:rounded-3xl bg-[#F8F7F4] p-5 sm:p-9 md:p-11">
               <AnimatePresence mode="wait">
                 {!isSubmitted ? (
-                  <form onSubmit={handleSubmit} className="space-y-7">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-7">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                       {[
                         {label:'Commercial / HQ', id:'commercial'},
                         {label:'Residential / Mixed-Use', id:'residential'},
                         {label:'Industrial / Mission Critical', id:'industrial'}
                       ].map(t => (
                         <button type="button" key={t.id} onClick={() => setBuildingType(t.id as any)}
-                          className={`rounded-2xl border py-4 text-sm transition ${buildingType === t.id ? 'border-[#B87333] bg-white font-medium' : 'border-[#E6E4DE] hover:bg-white/70'}`}>
+                          className={`rounded-xl sm:rounded-2xl border py-3 sm:py-4 text-xs sm:text-sm transition ${buildingType === t.id ? 'border-[#B87333] bg-white font-medium' : 'border-[#E6E4DE] hover:bg-white/70'}`}>
                           {t.label}
                         </button>
                       ))}
@@ -60,35 +60,35 @@ export default function ContactSection() {
 
                     <div>
                       <div className="flex items-baseline justify-between mb-2 text-sm">
-                        <div className="text-[#0B111F]/60">Approximate Height</div>
-                        <div className="font-semibold tracking-tight text-3xl text-[#0B111F] tabular-nums">{heightGoal} <span className="text-base align-super font-normal text-[#0B111F]/50">m</span></div>
+                        <div className="text-[#0B111F]/60 text-xs sm:text-sm">Approximate Height</div>
+                        <div className="font-semibold tracking-tight text-2xl sm:text-3xl text-[#0B111F] tabular-nums">{heightGoal} <span className="text-sm sm:text-base align-super font-normal text-[#0B111F]/50">m</span></div>
                       </div>
                       <input type="range" min="65" max="620" value={heightGoal} onChange={e => setHeightGoal(+e.target.value)} className="w-full accent-[#B87333]" />
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#E6E4DE] rounded-2xl overflow-hidden text-sm">
-                      <div className="bg-white p-4"><div className="text-[#0B111F]/50 text-xs">EST. FLOORS</div><div className="font-semibold tabular-nums text-xl mt-0.5">{calcs.floors}</div></div>
-                      <div className="bg-white p-4"><div className="text-[#0B111F]/50 text-xs">STEEL (MT)</div><div className="font-semibold tabular-nums text-xl mt-0.5">{calcs.steel.toLocaleString()}</div></div>
-                      <div className="bg-white p-4"><div className="text-[#0B111F]/50 text-xs">CONCRETE (m³)</div><div className="font-semibold tabular-nums text-xl mt-0.5">{calcs.concrete.toLocaleString()}</div></div>
-                      <div className="bg-white p-4"><div className="text-[#0B111F]/50 text-xs">INDICATIVE BUDGET</div><div className="font-semibold tabular-nums text-xl mt-0.5 text-[#B87333]">€{calcs.budget}M</div></div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#E6E4DE] rounded-xl sm:rounded-2xl overflow-hidden text-sm">
+                      <div className="bg-white p-3 sm:p-4"><div className="text-[#0B111F]/50 text-[10px] sm:text-xs">EST. FLOORS</div><div className="font-semibold tabular-nums text-lg sm:text-xl mt-0.5">{calcs.floors}</div></div>
+                      <div className="bg-white p-3 sm:p-4"><div className="text-[#0B111F]/50 text-[10px] sm:text-xs">STEEL (MT)</div><div className="font-semibold tabular-nums text-lg sm:text-xl mt-0.5">{calcs.steel.toLocaleString()}</div></div>
+                      <div className="bg-white p-3 sm:p-4"><div className="text-[#0B111F]/50 text-[10px] sm:text-xs">CONCRETE (m³)</div><div className="font-semibold tabular-nums text-lg sm:text-xl mt-0.5">{calcs.concrete.toLocaleString()}</div></div>
+                      <div className="bg-white p-3 sm:p-4"><div className="text-[#0B111F]/50 text-[10px] sm:text-xs">INDICATIVE BUDGET</div><div className="font-semibold tabular-nums text-lg sm:text-xl mt-0.5 text-[#B87333]">€{calcs.budget}M</div></div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-3 pt-2">
-                      <input value={clientName} onChange={e=>setClientName(e.target.value)} required placeholder="Full Name" className="bg-white border border-[#E6E4DE] rounded-2xl px-5 py-3.5 placeholder:text-[#0B111F]/40" />
-                      <input value={clientEmail} onChange={e=>setClientEmail(e.target.value)} required type="email" placeholder="Work Email" className="bg-white border border-[#E6E4DE] rounded-2xl px-5 py-3.5 placeholder:text-[#0B111F]/40" />
-                      <input value={clientLocation} onChange={e=>setClientLocation(e.target.value)} placeholder="Project City / Country" className="bg-white border border-[#E6E4DE] rounded-2xl px-5 py-3.5 placeholder:text-[#0B111F]/40" />
+                    <div className="grid sm:grid-cols-3 gap-2 sm:gap-3 pt-2">
+                      <input value={clientName} onChange={e=>setClientName(e.target.value)} required placeholder="Full Name" className="bg-white border border-[#E6E4DE] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm placeholder:text-[#0B111F]/40" />
+                      <input value={clientEmail} onChange={e=>setClientEmail(e.target.value)} required type="email" placeholder="Work Email" className="bg-white border border-[#E6E4DE] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm placeholder:text-[#0B111F]/40" />
+                      <input value={clientLocation} onChange={e=>setClientLocation(e.target.value)} placeholder="Project City / Country" className="bg-white border border-[#E6E4DE] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm placeholder:text-[#0B111F]/40" />
                     </div>
 
-                    <button type="submit" className="mt-2 w-full h-14 rounded-2xl bg-[#0B111F] text-white flex items-center justify-center gap-3 text-sm tracking-widest font-medium active:bg-black">
+                    <button type="submit" className="mt-1 sm:mt-2 w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-[#0B111F] text-white flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm tracking-widest font-medium active:bg-black">
                       REQUEST CONFIDENTIAL BRIEFING <ArrowUpRight className="w-4 h-4" />
                     </button>
-                    <p className="text-center text-xs text-[#0B111F]/45">All submissions are treated under strict NDA. Our leadership team responds personally.</p>
+                    <p className="text-center text-[11px] sm:text-xs text-[#0B111F]/45">All submissions are treated under strict NDA. Our leadership team responds personally.</p>
                   </form>
                 ) : (
-                  <div className="py-9 text-center">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-7"><CheckCircle2 className="text-emerald-600 w-8 h-8" /></div>
-                    <div className="font-display text-4xl tracking-tight">Thank you, {clientName.split(" ")[0]}.</div>
-                    <p className="mt-4 max-w-xs mx-auto text-[#0B111F]/70">Our Director of Development will contact you personally within 48 hours with a preliminary package.</p>
+                  <div className="py-6 sm:py-9 text-center">
+                    <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-5 sm:mb-7"><CheckCircle2 className="text-emerald-600 w-7 h-7 sm:w-8 sm:h-8" /></div>
+                    <div className="font-display text-2xl sm:text-4xl tracking-tight">Thank you, {clientName.split(" ")[0]}.</div>
+                    <p className="mt-3 sm:mt-4 max-w-xs mx-auto text-[#0B111F]/70 text-sm">Our Director of Development will contact you personally within 48 hours with a preliminary package.</p>
                   </div>
                 )}
               </AnimatePresence>

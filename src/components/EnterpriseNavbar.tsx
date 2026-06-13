@@ -80,15 +80,17 @@ export default function EnterpriseNavbar({ currentSection, onNavigate }: Enterpr
 
             <button
               onClick={() => handleLinkClick('contact')}
-              className="flex items-center gap-2 bg-[#B87333] hover:bg-[#8B5E3C] active:bg-[#6F4930] transition-colors text-white px-5 h-10 rounded-full text-sm font-semibold tracking-wider"
+              className="flex items-center gap-1.5 sm:gap-2 bg-[#B87333] hover:bg-[#8B5E3C] active:bg-[#6F4930] transition-colors text-white px-3.5 sm:px-5 h-9 sm:h-10 rounded-full text-xs sm:text-sm font-semibold tracking-wider"
             >
-              BEGIN PROJECT <ArrowUpRight className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">BEGIN PROJECT</span>
+              <span className="sm:hidden">START</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
 
             {/* Mobile Menu Toggle */}
             <button 
               onClick={() => setIsOpen(!isOpen)} 
-              className="md:hidden p-2 text-white/80 hover:text-white"
+              className="md:hidden p-2 text-[#0B111F]/80 hover:text-[#0B111F]"
             >
               {isOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
