@@ -184,7 +184,7 @@ export default function EnterpriseFramesHero({ onNavigate, children }: Enterpris
               </div>
 
               <div
-                onClick={() => onNavigate('about')}
+                onClick={() => onNavigate('contact')}
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 cursor-pointer text-white/60 hover:text-white/90 transition-colors"
               >
                 <div className="text-[9px] font-medium tracking-[3.5px]">SCROLL</div>

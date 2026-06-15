@@ -9,8 +9,8 @@ interface EnterpriseNavbarProps {
 const navLinks = [
   { name: 'About', id: 'about' },
   { name: 'Capabilities', id: 'services' },
-  { name: 'Landmarks', id: 'projects' },
   { name: 'Methodology', id: 'process' },
+  { name: 'Contact', id: 'contact' },
 ];
 
 export default function EnterpriseNavbar({ currentSection, onNavigate }: EnterpriseNavbarProps) {
@@ -102,7 +102,7 @@ export default function EnterpriseNavbar({ currentSection, onNavigate }: Enterpr
       {isOpen && (
         <div className="fixed inset-0 z-[70] bg-white md:hidden pt-20 px-6">
           <div className="flex flex-col gap-2 text-xl font-medium tracking-tight py-8">
-            {[...navLinks, { name: 'Contact', id: 'contact' }].map((link, idx) => (
+            {navLinks.map((link, idx) => (
               <button
                 key={idx}
                 onClick={() => handleLinkClick(link.id)}

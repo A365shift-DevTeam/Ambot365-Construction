@@ -25,32 +25,8 @@ export default function AboutSection() {
     }
   ];
 
-  const stats = [
-    { value: "480", unit: "m", label: "Supertall Delivered" },
-    { value: "14.2", unit: "M", label: "Sq Ft Commissioned" },
-    { value: "0.00", unit: "%", label: "Lost Time Injury Rate" },
-    { value: "42", unit: "", label: "Countries" },
-  ];
-
   return (
     <section id="about" className="bg-white border-b border-[#E6E4DE]">
-      {/* Enterprise Stats */}
-      <div className="border-b border-[#E6E4DE]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 sm:gap-y-9 py-8 sm:py-11">
-            {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col border-l border-[#E6E4DE] pl-4 sm:pl-6 first:border-l-0 first:pl-0">
-                <div className="font-display font-semibold text-[32px] sm:text-[42px] md:text-6xl tracking-[-1.8px] text-[#0B111F] tabular-nums flex items-baseline">
-                  {stat.value}
-                  <span className="text-[18px] sm:text-[22px] md:text-[27px] ml-1 text-[#B87333] font-medium tracking-normal">{stat.unit}</span>
-                </div>
-                <div className="mt-1 uppercase text-[10px] sm:text-xs tracking-[0.16em] sm:tracking-[0.2em] text-[#0B111F]/50 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Narrative + Pillars */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-12 sm:pt-16 pb-14 sm:pb-20">
         <div className="max-w-4xl">
