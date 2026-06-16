@@ -55,20 +55,28 @@ export default function EnterpriseFramesHero({ onNavigate, children }: Enterpris
       if (!section) return;
 
       const rect = section.getBoundingClientRect();
-      const stickyH = containerRef.current?.clientHeight || window.innerHeight;
-      const scrollDistance = rect.height - stickyH;
-      const scrolled = -rect.top;
-      
-      const scrollFraction = Math.max(0, Math.min(scrolled / Math.max(scrollDistance, 1), 1));
-      const frame = Math.floor(scrollFraction * (frameCount - 1)) + 1;
+      let scrollFraction = 0;
 
+      if (isMobile) {
+        // Mobile: Scroll lock. The sticky wrapper holds the image and next section.
+        const scrollDistance = window.innerHeight * 1.5; // Animate over 1.5 screens of scroll
+        const scrolled = -rect.top;
+        scrollFraction = Math.max(0, Math.min(scrolled / Math.max(scrollDistance, 1), 1));
+      } else {
+        const stickyH = containerRef.current?.clientHeight || window.innerHeight;
+        const scrollDistance = rect.height - stickyH;
+        const scrolled = -rect.top;
+        scrollFraction = Math.max(0, Math.min(scrolled / Math.max(scrollDistance, 1), 1));
+      }
+      
+      const frame = Math.floor(scrollFraction * (frameCount - 1)) + 1;
       requestAnimationFrame(() => setFrameIndex(frame));
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMobile]);
 
   // Draw frame to canvas
   const drawFrame = useCallback((index: number) => {
@@ -129,13 +137,12 @@ export default function EnterpriseFramesHero({ onNavigate, children }: Enterpris
       <section
         ref={sectionRef}
         id="hero"
-        className="relative w-full bg-[#F8F7F4]"
-        style={{ height: '240vh' }} // Provide plenty of scroll distance to watch frames fully
+        className={`relative w-full bg-[#F8F7F4] ${isMobile ? 'pt-[80px]' : ''}`}
+        style={{ height: isMobile ? '300vh' : '240vh' }} 
       >
         <div
           ref={containerRef}
-          className={`sticky w-full overflow-hidden flex flex-col ${isMobile ? 'top-[80px] bg-[#F8F7F4]' : 'top-0 bg-[#1a1a1a]'}`}
-          style={{ height: isMobile ? 'calc(100dvh - 80px)' : '100dvh' }}
+          className={`${!isMobile ? 'sticky top-0 h-[100dvh] bg-[#1a1a1a] flex flex-col' : 'sticky top-[80px] w-full bg-[#F8F7F4]'} overflow-hidden`}
         >
           {/* Canvas Wrapper */}
           <div className={`relative w-full shrink-0 ${!isMobile ? 'h-full absolute inset-0' : ''}`}>
@@ -163,39 +170,38 @@ export default function EnterpriseFramesHero({ onNavigate, children }: Enterpris
             <div className={`absolute inset-0 blueprint-grid opacity-[0.12] pointer-events-none ${!isMobile ? 'h-full' : ''}`} />
           </div>
 
-          {/* MOBILE CONTENT: Placed inside sticky container right below image */}
-          {isMobile && (
-            <div className="flex-1 w-full overflow-y-auto bg-[#F8F7F4]">
-              {children}
-            </div>
-          )}
-
           {/* Desktop-only Overlays */}
           {!isMobile && (
             <>
-              <div className="absolute top-20 left-12 z-30 flex items-center gap-3 pointer-events-none">
-                <div className="w-8 h-8 rounded-md overflow-hidden shadow-sm">
-                  <img src="/favicon.png" alt="Ambot365 Logo" className="w-full h-full object-cover" />
+              {/* Soft vignette for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
+
+              <div className="absolute inset-0 flex flex-col justify-end p-12 lg:p-24 pointer-events-none z-10 pb-32">
+                <div className="overflow-hidden mb-6">
+                  <div className="uppercase tracking-[0.3em] text-[#B87333] text-sm md:text-base font-medium opacity-90">
+                    Proprietary Framework
+                  </div>
                 </div>
-                <div className="flex flex-col -space-y-px">
-                  <div className="font-display font-semibold tracking-[0.2em] text-[13px] text-white">AMBOT365</div>
-                  <div className="text-[8px] text-white/70 tracking-[0.22em]">CONSTRUCTION</div>
-                </div>
+                
+                <h1 className="display-lg text-white max-w-5xl leading-[0.9] tracking-[-0.04em] mix-blend-overlay opacity-90 drop-shadow-2xl">
+                  Ambot365
+                  <br />
+                  <span className="opacity-70">Construction</span>
+                </h1>
               </div>
 
-              <div
-                onClick={() => onNavigate('contact')}
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 cursor-pointer text-white/60 hover:text-white/90 transition-colors"
-              >
-                <div className="text-[9px] font-medium tracking-[3.5px]">SCROLL</div>
-                <div className="h-px w-5 bg-white/30" />
-              </div>
-
-              <div className="absolute bottom-8 right-8 hidden lg:block z-30 text-right pointer-events-none">
-                <div className="text-[9px] text-white/50 tracking-[2px] font-mono">CONSTRUCTION SEQUENCE • 156 FRAMES</div>
+              {/* Scroll indicator desktop */}
+              <div className="absolute bottom-12 right-12 z-20 pointer-events-none flex items-center gap-4">
+                <span className="text-white/50 text-xs tracking-[0.3em] uppercase font-mono">Scroll</span>
+                <div className="w-12 h-[1px] bg-white/20 relative overflow-hidden">
+                  <div className="absolute inset-y-0 left-0 w-1/3 bg-[#B87333] animate-[slide_2s_ease-in-out_infinite]" />
+                </div>
               </div>
             </>
           )}
+
+          {/* Mobile Content inside Sticky */}
+          {isMobile && children}
         </div>
       </section>
 

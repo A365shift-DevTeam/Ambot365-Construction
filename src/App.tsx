@@ -76,10 +76,10 @@ export default function App() {
       <EnterpriseNavbar currentSection={activeSection} onNavigate={handleNavigate} />
 
       {/* ==================== HERO — FRAME SEQUENCE ==================== */}
-      <EnterpriseFramesHero onNavigate={handleNavigate} />
-
-      {/* ==================== CONTACT / ESTIMATOR ==================== */}
-      <ContactSection />
+      <EnterpriseFramesHero onNavigate={handleNavigate}>
+        {/* ==================== CONTACT / ESTIMATOR ==================== */}
+        <ContactSection />
+      </EnterpriseFramesHero>
 
       {/* ==================== ABOUT ==================== */}
       <AboutSection />
