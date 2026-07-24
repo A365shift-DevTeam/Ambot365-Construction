@@ -1,212 +1,528 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLenis } from 'lenis/react';
+import {
+  FRAME_CONFIG,
+  frameUrl,
+  posterUrl,
+  progressToIndex,
+  renderedCount,
+  type FrameVariant,
+} from '../config/frames';
 
 interface EnterpriseFramesHeroProps {
   onNavigate: (id: string) => void;
   children?: React.ReactNode;
 }
 
-export default function EnterpriseFramesHero({ onNavigate, children }: EnterpriseFramesHeroProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+const COMPACT_MQ = '(max-width: 1023px), (orientation: portrait)';
+const REDUCED_MQ = '(prefers-reduced-motion: reduce)';
+/** Parallel loaders — fills the sequence quickly so scrubbing never stalls */
+const LOAD_CONCURRENCY = 32;
+/** Unlock canvas once this fraction is decoded (rest continues in background) */
+const READY_THRESHOLD = 0.4;
+
+function isCompactViewport(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia(COMPACT_MQ).matches;
+}
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia(REDUCED_MQ).matches;
+}
+
+function drawImageFitted(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  boxW: number,
+  boxH: number,
+  mode: 'cover' | 'contain',
+) {
+  const imgW = image.naturalWidth || image.width;
+  const imgH = image.naturalHeight || image.height;
+  if (!imgW || !imgH || !boxW || !boxH) return;
+
+  if (mode === 'cover') {
+    const scale = Math.max(boxW / imgW, boxH / imgH);
+    const dw = imgW * scale;
+    const dh = imgH * scale;
+    ctx.drawImage(image, (boxW - dw) / 2, (boxH - dh) / 2, dw, dh);
+  } else {
+    const scale = Math.min(boxW / imgW, boxH / imgH);
+    const dw = imgW * scale;
+    const dh = imgH * scale;
+    ctx.drawImage(image, (boxW - dw) / 2, 0, dw, dh);
+  }
+}
+
+/** Prefer holding the previous frame (no forward jumps while still loading) */
+function resolveFrame(target: number, loaded: boolean[], count: number): number {
+  if (target < 0 || target >= count) return -1;
+  if (loaded[target]) return target;
+  for (let i = target - 1; i >= 0; i--) {
+    if (loaded[i]) return i;
+  }
+  for (let i = target + 1; i < count; i++) {
+    if (loaded[i]) return i;
+  }
+  return -1;
+}
+
+function readNavHeightPx(): number {
+  if (typeof window === 'undefined') return 80;
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--nav-height')
+    .trim();
+  if (!raw) return 80;
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;visibility:hidden;height:${raw}`;
+  document.documentElement.appendChild(probe);
+  const h = probe.offsetHeight || 80;
+  probe.remove();
+  return h;
+}
+
+export default function EnterpriseFramesHero({
+  onNavigate: _onNavigate,
+  children,
+}: EnterpriseFramesHeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const [frameIndex, setFrameIndex] = useState(1);
-  const [imagesPreloaded, setImagesPreloaded] = useState(false);
-  const [loadProgress, setLoadProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
-  const [imgAspect, setImgAspect] = useState(16 / 9);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const plateRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const loadPctElRef = useRef<HTMLSpanElement>(null);
 
-  const frameCount = 156;
+  const [variant, setVariant] = useState<FrameVariant>(() =>
+    isCompactViewport() ? 'compact' : 'desktop',
+  );
+  const [reducedMotion, setReducedMotion] = useState(() => prefersReducedMotion());
+  const [ready, setReady] = useState(false);
 
-  // Detect mobile / tablet
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 1024); // lg breakpoint inclusive, applies stacked layout to iPad Pro
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  // Imperative — never drive frames through React state
+  const progressRef = useRef(0);
+  const lastDrawnRef = useRef(-1);
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
+  const loadedRef = useRef<boolean[]>([]);
+  const variantRef = useRef(variant);
+  const reducedRef = useRef(reducedMotion);
+  const sizeRef = useRef({ w: 0, h: 0, dpr: 1 });
+  const readyRef = useRef(false);
+  const navHRef = useRef(80);
+  const needsPaintRef = useRef(true);
+  const loopingRef = useRef(false);
+  const rafLoopRef = useRef(0);
+  const idleFramesRef = useRef(0);
 
-  // Preload all frames
-  useEffect(() => {
-    let loaded = 0;
-    const images: HTMLImageElement[] = [];
+  variantRef.current = variant;
+  reducedRef.current = reducedMotion;
+  readyRef.current = ready;
 
-    for (let i = 1; i <= frameCount; i++) {
-      const img = new Image();
-      img.src = `/frames/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
-      img.onload = img.onerror = () => {
-        loaded++;
-        setLoadProgress(Math.round((loaded / frameCount) * 100));
-        if (loaded === frameCount) {
-          setImagesPreloaded(true);
-          const first = images.find(im => im.complete && im.width > 0);
-          if (first) setImgAspect(first.width / first.height);
-        }
-      };
-      images.push(img);
-    }
-    imagesRef.current = images;
-  }, []);
+  const paint = () => {
+    if (reducedRef.current) return;
 
-  // Scroll-driven frame animation
-  useEffect(() => {
-    const handleScroll = () => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      const rect = section.getBoundingClientRect();
-      let scrollFraction = 0;
-
-      if (isMobile) {
-        // Mobile: Scroll lock. The sticky wrapper holds the image and next section.
-        const scrollDistance = window.innerHeight * 1.5; // Animate over 1.5 screens of scroll
-        const scrolled = -rect.top;
-        scrollFraction = Math.max(0, Math.min(scrolled / Math.max(scrollDistance, 1), 1));
-      } else {
-        const stickyH = containerRef.current?.clientHeight || window.innerHeight;
-        const scrollDistance = rect.height - stickyH;
-        const scrolled = -rect.top;
-        scrollFraction = Math.max(0, Math.min(scrolled / Math.max(scrollDistance, 1), 1));
-      }
-      
-      const frame = Math.floor(scrollFraction * (frameCount - 1)) + 1;
-      requestAnimationFrame(() => setFrameIndex(frame));
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobile]);
-
-  // Draw frame to canvas
-  const drawFrame = useCallback((index: number) => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container || !imagesPreloaded) return;
-
-    const ctx = canvas.getContext('2d', { alpha: false });
+    const ctx = ctxRef.current;
     if (!ctx) return;
 
-    const image = imagesRef.current[index - 1];
-    if (!image || !image.complete || image.width === 0) return;
+    const v = variantRef.current;
+    const count = renderedCount(v);
+    const target = progressToIndex(progressRef.current, v);
+    const idx = resolveFrame(target, loadedRef.current, count);
+    if (idx < 0) return;
+    if (idx === lastDrawnRef.current) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    
-    // On mobile, the canvas wrapper dictates the height. On desktop, the container does.
-    const displayW = isMobile ? container.clientWidth : container.clientWidth;
-    // On mobile, force canvas to aspect ratio height. On desktop, fill container.
-    const displayH = isMobile ? container.clientWidth / imgAspect : container.clientHeight;
+    const image = imagesRef.current[idx];
+    if (!image || !image.complete || !image.naturalWidth) return;
 
-    if (canvas.width !== displayW * dpr || canvas.height !== displayH * dpr) {
-      canvas.width = displayW * dpr;
-      canvas.height = displayH * dpr;
-      canvas.style.width = `${displayW}px`;
-      canvas.style.height = `${displayH}px`;
+    const { w, h, dpr } = sizeRef.current;
+    if (w < 1 || h < 1) return;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, w, h);
+
+    const mode: 'cover' | 'contain' = v === 'desktop' ? 'cover' : 'contain';
+    drawImageFitted(ctx, image, w, h, mode);
+
+    lastDrawnRef.current = idx;
+  };
+
+  /** Sticky rAF loop — keeps painting every display frame while scroll is active */
+  const ensureLoop = () => {
+    if (loopingRef.current) {
+      idleFramesRef.current = 0;
+      return;
     }
+    loopingRef.current = true;
+    idleFramesRef.current = 0;
 
-    if (isMobile) {
-      // Mobile: exact fit, no crop
-      ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
-    } else {
-      // Desktop: cover fit
-      const iAspect = image.width / image.height;
-      const cAspect = canvas.width / canvas.height;
-      let sx = 0, sy = 0, sw = image.width, sh = image.height;
-
-      if (iAspect > cAspect) {
-        sw = image.height * cAspect;
-        sx = (image.width - sw) / 2;
+    const tick = () => {
+      if (needsPaintRef.current) {
+        needsPaintRef.current = false;
+        idleFramesRef.current = 0;
+        paint();
       } else {
-        sh = image.width / cAspect;
-        sy = (image.height - sh) / 2;
+        idleFramesRef.current += 1;
       }
-      ctx.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-    }
-  }, [imagesPreloaded, isMobile, imgAspect]);
 
-  useEffect(() => { drawFrame(frameIndex); }, [frameIndex, imagesPreloaded, drawFrame]);
+      // Stop after ~0.5s idle to save battery; restart on next scroll
+      if (idleFramesRef.current > 30) {
+        loopingRef.current = false;
+        return;
+      }
+
+      rafLoopRef.current = requestAnimationFrame(tick);
+    };
+
+    rafLoopRef.current = requestAnimationFrame(tick);
+  };
+
+  const requestPaint = (force = false) => {
+    if (force) lastDrawnRef.current = -1;
+    needsPaintRef.current = true;
+    ensureLoop();
+  };
+
+  const updateProgress = () => {
+    const section = sectionRef.current;
+    if (!section || reducedRef.current) return;
+
+    const rect = section.getBoundingClientRect();
+    const v = variantRef.current;
+    const stickyH =
+      stickyRef.current?.clientHeight ||
+      (v === 'compact'
+        ? window.innerHeight - navHRef.current
+        : window.innerHeight);
+    const scrollDistance = Math.max(rect.height - stickyH, 1);
+    const scrolled = -rect.top;
+    const next = Math.max(0, Math.min(scrolled / scrollDistance, 1));
+
+    // Always flag paint — even tiny Lenis steps must advance frames
+    progressRef.current = next;
+    requestPaint(false);
+  };
+
+  // matchMedia
+  useEffect(() => {
+    const compactMq = window.matchMedia(COMPACT_MQ);
+    const reducedMq = window.matchMedia(REDUCED_MQ);
+
+    const onCompact = () => setVariant(compactMq.matches ? 'compact' : 'desktop');
+    const onReduced = () => setReducedMotion(reducedMq.matches);
+
+    navHRef.current = readNavHeightPx();
+    onCompact();
+    onReduced();
+
+    compactMq.addEventListener('change', onCompact);
+    reducedMq.addEventListener('change', onReduced);
+    const onWinResize = () => {
+      navHRef.current = readNavHeightPx();
+      updateProgress();
+    };
+    window.addEventListener('resize', onWinResize);
+
+    return () => {
+      compactMq.removeEventListener('change', onCompact);
+      reducedMq.removeEventListener('change', onReduced);
+      window.removeEventListener('resize', onWinResize);
+      cancelAnimationFrame(rafLoopRef.current);
+      loopingRef.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Parallel preload — no React setState per image (that was killing FPS)
+  useEffect(() => {
+    let cancelled = false;
+    const count = renderedCount(variant);
+    const loaded = new Array(count).fill(false);
+    const images: (HTMLImageElement | null)[] = new Array(count).fill(null);
+
+    loadedRef.current = loaded;
+    imagesRef.current = images;
+    lastDrawnRef.current = -1;
+    readyRef.current = false;
+    setReady(false);
+    if (loadPctElRef.current) loadPctElRef.current.textContent = '0';
+
+    let finished = 0;
+    let cursor = 0;
+
+    const onOneDone = (i: number, img: HTMLImageElement | null, ok: boolean) => {
+      if (cancelled) return;
+
+      if (ok && img && img.naturalWidth > 0) {
+        images[i] = img;
+        loaded[i] = true;
+      }
+
+      finished++;
+      const pct = Math.round((finished / count) * 100);
+      // Imperative DOM write — zero React cost
+      if (loadPctElRef.current) loadPctElRef.current.textContent = String(pct);
+
+      if (!readyRef.current && finished / count >= READY_THRESHOLD && loaded[0]) {
+        readyRef.current = true;
+        setReady(true);
+        requestPaint(true);
+      }
+
+      if (finished === count && !cancelled) {
+        readyRef.current = true;
+        setReady(true);
+        requestPaint(true);
+      }
+    };
+
+    const loadOne = (i: number) =>
+      new Promise<void>((resolve) => {
+        if (cancelled) {
+          resolve();
+          return;
+        }
+        const img = new Image();
+        img.decoding = 'async';
+        img.onload = () => {
+          // decode() so the first draw doesn't hitch
+          const finish = () => {
+            onOneDone(i, img, true);
+            resolve();
+          };
+          if (img.decode) {
+            img.decode().then(finish).catch(finish);
+          } else {
+            finish();
+          }
+        };
+        img.onerror = () => {
+          onOneDone(i, null, false);
+          resolve();
+        };
+        img.src = frameUrl(variant, i);
+      });
+
+    const worker = async () => {
+      while (!cancelled) {
+        const i = cursor++;
+        if (i >= count) break;
+        await loadOne(i);
+      }
+    };
+
+    void Promise.all(
+      Array.from({ length: Math.min(LOAD_CONCURRENCY, count) }, () => worker()),
+    );
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(rafLoopRef.current);
+      loopingRef.current = false;
+      for (let i = 0; i < count; i++) {
+        const img = images[i];
+        if (img) {
+          img.onload = null;
+          img.onerror = null;
+          img.src = '';
+        }
+        images[i] = null;
+        loaded[i] = false;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant]);
+
+  // Canvas measure
+  useEffect(() => {
+    const plate = plateRef.current;
+    const canvas = canvasRef.current;
+    if (!plate || !canvas || reducedMotion) return;
+
+    let raf = 0;
+
+    const measure = () => {
+      const rect = plate.getBoundingClientRect();
+      const w = Math.max(1, Math.round(rect.width));
+      const h = Math.max(1, Math.round(rect.height));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      const prev = sizeRef.current;
+      if (prev.w !== w || prev.h !== h || prev.dpr !== dpr) {
+        sizeRef.current = { w, h, dpr };
+        const bw = Math.round(w * dpr);
+        const bh = Math.round(h * dpr);
+
+        if (canvas.width !== bw || canvas.height !== bh) {
+          canvas.width = bw;
+          canvas.height = bh;
+          canvas.style.width = `${w}px`;
+          canvas.style.height = `${h}px`;
+        }
+
+        const ctx =
+          canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
+          canvas.getContext('2d', { alpha: false });
+        ctxRef.current = ctx;
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'medium'; // faster than 'high' while scrolling
+        }
+      }
+
+      requestPaint(true);
+    };
+
+    const onResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(measure);
+    };
+
+    measure();
+    const ro = new ResizeObserver(onResize);
+    ro.observe(plate);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant, reducedMotion]);
+
+  // Lenis + native scroll both feed the same progress ref
+  useLenis(() => {
+    updateProgress();
+  });
 
   useEffect(() => {
-    const handleResize = () => drawFrame(frameIndex);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [frameIndex, drawFrame]);
+    const onScroll = () => updateProgress();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    updateProgress();
+    return () => window.removeEventListener('scroll', onScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant]);
+
+  const isCompact = variant === 'compact';
+  const poster = posterUrl(variant);
+  const aspect = FRAME_CONFIG.aspectRatioCss;
 
   return (
     <>
       <section
         ref={sectionRef}
         id="hero"
-        className={`relative w-full bg-[#F8F7F4] ${isMobile ? 'pt-[80px]' : ''}`}
-        style={{ height: isMobile ? '300vh' : '240vh' }} 
+        className="relative w-full bg-[#F8F7F4]"
+        style={{ height: isCompact ? '300vh' : '240vh' }}
       >
         <div
-          ref={containerRef}
-          className={`${!isMobile ? 'sticky top-0 h-[100dvh] bg-[#1a1a1a] flex flex-col' : 'sticky top-[80px] w-full bg-[#F8F7F4]'} overflow-hidden`}
+          ref={stickyRef}
+          className={
+            isCompact
+              ? 'sticky w-full bg-[#F8F7F4] overflow-x-clip flex flex-col'
+              : 'sticky top-0 h-[100dvh] w-full bg-[#1a1a1a] overflow-hidden'
+          }
+          style={
+            isCompact
+              ? {
+                  top: 'var(--nav-height)',
+                  minHeight: 'calc(100dvh - var(--nav-height))',
+                }
+              : undefined
+          }
         >
-          {/* Canvas Wrapper */}
-          <div className={`relative w-full shrink-0 ${!isMobile ? 'h-full absolute inset-0' : ''}`}>
-            <canvas
-              ref={canvasRef}
-              className="w-full"
-              style={{ 
-                opacity: imagesPreloaded ? 1 : 0, 
-                transition: 'opacity 0.5s ease',
-                height: isMobile ? `calc(100vw / ${imgAspect})` : '100%',
-                objectFit: isMobile ? 'contain' : 'cover'
+          <div
+            ref={plateRef}
+            className={
+              isCompact
+                ? 'relative w-full shrink-0 bg-[#1a1a1a] overflow-hidden'
+                : 'absolute inset-0 w-full h-full bg-[#1a1a1a] overflow-hidden'
+            }
+            style={isCompact ? { aspectRatio: aspect, width: '100%' } : undefined}
+          >
+            <img
+              src={poster}
+              alt=""
+              width={1280}
+              height={720}
+              decoding="async"
+              fetchPriority="high"
+              draggable={false}
+              className="absolute inset-0 w-full h-full pointer-events-none select-none"
+              style={{
+                objectFit: isCompact ? 'contain' : 'cover',
+                objectPosition: isCompact ? 'center top' : 'center center',
+                opacity: reducedMotion || !ready ? 1 : 0,
+                transition: 'opacity 0.3s ease',
               }}
             />
 
-            {!imagesPreloaded && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-20 gap-2 bg-[#1a1a1a]">
-                <div className="w-8 h-8 md:w-10 md:h-10 border-2 border-[#B87333]/30 border-t-[#B87333] rounded-full animate-spin" />
-                <div className="text-[9px] md:text-[11px] text-white/50 tracking-[0.25em] font-mono">
-                  LOADING — {loadProgress}%
+            {!reducedMotion && (
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                style={{
+                  opacity: ready ? 1 : 0,
+                  transition: 'opacity 0.3s ease',
+                }}
+                aria-hidden
+              />
+            )}
+
+            {!ready && !reducedMotion && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-20 gap-2 bg-[#1a1a1a]/70">
+                <div className="w-8 h-8 border-2 border-[#B87333]/30 border-t-[#B87333] rounded-full animate-spin" />
+                <div className="text-[10px] text-white/50 tracking-[0.25em] font-mono">
+                  LOADING — <span ref={loadPctElRef}>0</span>%
                 </div>
               </div>
             )}
-            
-            {/* Mobile blueprint grid only covers the image area */}
-            <div className={`absolute inset-0 blueprint-grid opacity-[0.12] pointer-events-none ${!isMobile ? 'h-full' : ''}`} />
-          </div>
 
-          {/* Desktop-only Overlays */}
-          {!isMobile && (
-            <>
-              {/* Soft vignette for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
+            <div className="absolute inset-0 blueprint-grid opacity-[0.12] pointer-events-none" />
 
-              <div className="absolute inset-0 flex flex-col justify-end p-12 lg:p-24 pointer-events-none z-10 pb-32">
-                <div className="overflow-hidden mb-6">
-                  <div className="uppercase tracking-[0.3em] text-[#B87333] text-sm md:text-base font-medium opacity-90">
-                    Proprietary Framework
+            {!isCompact && (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
+
+                <div className="absolute inset-0 flex flex-col justify-end pointer-events-none z-10 px-4 sm:px-6 md:px-10 pb-[clamp(4rem,10dvh,8rem)]">
+                  <div className="overflow-hidden mb-[clamp(0.75rem,2dvh,1.5rem)]">
+                    <div
+                      className="uppercase tracking-[0.3em] text-[#B87333] font-medium opacity-90"
+                      style={{ fontSize: 'clamp(0.7rem, 0.4rem + 0.8vw, 1rem)' }}
+                    >
+                      Proprietary Framework
+                    </div>
+                  </div>
+
+                  <h1
+                    className="display-lg text-white max-w-5xl leading-[0.9] tracking-[-0.04em] mix-blend-overlay opacity-90 drop-shadow-2xl"
+                    style={{
+                      fontSize:
+                        'clamp(2.25rem, min(1.2rem + 4.6vw, 0.5rem + 7vh), 4.5rem)',
+                    }}
+                  >
+                    Ambot365
+                    <br />
+                    <span className="opacity-70">Construction</span>
+                  </h1>
+                </div>
+
+                <div className="absolute bottom-[clamp(1.5rem,4dvh,3rem)] right-[clamp(1rem,3vw,3rem)] z-20 pointer-events-none flex items-center gap-4">
+                  <span className="text-white/50 text-xs tracking-[0.3em] uppercase font-mono">
+                    Scroll
+                  </span>
+                  <div className="w-12 h-px bg-white/20 relative overflow-hidden">
+                    <div className="absolute inset-y-0 left-0 w-1/3 bg-[#B87333] animate-[slide_2s_ease-in-out_infinite]" />
                   </div>
                 </div>
-                
-                <h1 className="display-lg text-white max-w-5xl leading-[0.9] tracking-[-0.04em] mix-blend-overlay opacity-90 drop-shadow-2xl">
-                  Ambot365
-                  <br />
-                  <span className="opacity-70">Construction</span>
-                </h1>
-              </div>
+              </>
+            )}
+          </div>
 
-              {/* Scroll indicator desktop */}
-              <div className="absolute bottom-12 right-12 z-20 pointer-events-none flex items-center gap-4">
-                <span className="text-white/50 text-xs tracking-[0.3em] uppercase font-mono">Scroll</span>
-                <div className="w-12 h-[1px] bg-white/20 relative overflow-hidden">
-                  <div className="absolute inset-y-0 left-0 w-1/3 bg-[#B87333] animate-[slide_2s_ease-in-out_infinite]" />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Mobile Content inside Sticky */}
-          {isMobile && children}
+          {isCompact && children}
         </div>
       </section>
 
-      {/* DESKTOP CONTENT: Placed naturally after the 240vh section */}
-      {!isMobile && children}
+      {!isCompact && children}
     </>
   );
 }

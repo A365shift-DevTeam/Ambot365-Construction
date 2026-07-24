@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
+import { useLenis } from 'lenis/react';
 
 interface EnterpriseNavbarProps {
   currentSection: string;
@@ -17,11 +18,11 @@ export default function EnterpriseNavbar({ currentSection, onNavigate }: Enterpr
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  useLenis((lenis) => {
+    // Boolean gate only — avoids setState on every scroll pixel
+    const next = lenis.scroll > 40;
+    setScrolled((prev) => (prev === next ? prev : next));
+  }, [], 0);
 
   const handleLinkClick = (id: string) => {
     onNavigate(id);
@@ -33,13 +34,13 @@ export default function EnterpriseNavbar({ currentSection, onNavigate }: Enterpr
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 h-[var(--nav-height)] ${
           isHero && !scrolled 
             ? 'bg-white/70 backdrop-blur-xl' 
             : 'bg-white/95 backdrop-blur-xl border-b border-[#E6E4DE]'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-10 flex h-20 items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 flex h-full items-center justify-between">
           {/* Logo */}
           <div 
             onClick={() => handleLinkClick('hero')} 

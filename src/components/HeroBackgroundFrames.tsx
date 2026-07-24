@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLenis } from 'lenis/react';
 
 export default function HeroBackgroundFrames() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -6,7 +7,7 @@ export default function HeroBackgroundFrames() {
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const imagesRef = useRef<HTMLImageElement[]>([]);
 
-  const frameCount = 156;
+  const frameCount = 240;
 
   // Preload images
   useEffect(() => {
@@ -15,7 +16,7 @@ export default function HeroBackgroundFrames() {
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
-      img.src = `/frames/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
+      img.src = `/frames/${String(i).padStart(8, '0')}.webp`;
       img.onload = img.onerror = () => {
         loaded++;
         if (loaded === frameCount) {
@@ -27,25 +28,19 @@ export default function HeroBackgroundFrames() {
     imagesRef.current = images;
   }, []);
 
-  // Scroll handler
-  useEffect(() => {
-    const handleScroll = () => {
-      const container = canvasRef.current?.closest('section');
-      if (!container) return;
+  // Lenis-driven frame scrubbing
+  useLenis(() => {
+    const container = canvasRef.current?.closest('section');
+    if (!container) return;
 
-      const rect = container.getBoundingClientRect();
-      const scrollDistance = rect.height - window.innerHeight;
-      const scrolled = -rect.top;
-      const scrollFraction = Math.max(0, Math.min(scrolled / Math.max(scrollDistance, 1), 1));
-      const frame = Math.floor(scrollFraction * (frameCount - 1)) + 1;
+    const rect = container.getBoundingClientRect();
+    const scrollDistance = rect.height - window.innerHeight;
+    const scrolled = -rect.top;
+    const scrollFraction = Math.max(0, Math.min(scrolled / Math.max(scrollDistance, 1), 1));
+    const frame = Math.floor(scrollFraction * (frameCount - 1)) + 1;
 
-      requestAnimationFrame(() => setFrameIndex(frame));
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    setFrameIndex((prev) => (prev === frame ? prev : frame));
+  });
 
   // Render to canvas
   useEffect(() => {

@@ -5,9 +5,10 @@ import { ServiceItem } from '../types';
 interface ServicesProps {
   onSelectRenderMode: (mode: 'wireframe' | 'xray' | 'thermal' | 'solid' | 'hologram', serviceId: string) => void;
   focusedServiceId: string | null;
+  onNavigate?: (sectionId: string) => void;
 }
 
-export default function ServicesSection({ onSelectRenderMode, focusedServiceId }: ServicesProps) {
+export default function ServicesSection({ onSelectRenderMode, focusedServiceId, onNavigate }: ServicesProps) {
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
 
   const services: ServiceItem[] = [
@@ -104,8 +105,10 @@ export default function ServicesSection({ onSelectRenderMode, focusedServiceId }
               <div className="font-display text-2xl sm:text-3xl md:text-4xl tracking-[-0.8px] sm:tracking-[-1.2px] leading-none">Ready to discuss<br />your next landmark?</div>
             </div>
             <div className="mt-auto pt-6 sm:pt-10">
-              <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} 
-                className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-9 h-11 sm:h-12 rounded-full border border-white/20 hover:bg-white hover:text-[#0B111F] transition text-xs sm:text-sm tracking-wider font-medium">
+              <button
+                onClick={() => onNavigate?.('contact')}
+                className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-9 h-11 sm:h-12 rounded-full border border-white/20 hover:bg-white hover:text-[#0B111F] transition text-xs sm:text-sm tracking-wider font-medium"
+              >
                 REQUEST A BRIEFING <ArrowUpRight className="w-4 h-4" />
               </button>
               <p className="text-[11px] sm:text-xs text-white/50 mt-4 sm:mt-6 max-w-[28ch] sm:max-w-[22ch]">Our senior leadership team will respond within 48 hours with a preliminary programme and budget indication.</p>

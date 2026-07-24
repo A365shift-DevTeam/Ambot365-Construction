@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { ReactLenis, useLenis } from 'lenis/react';
 import EnterpriseNavbar from './components/EnterpriseNavbar';
 import EnterpriseFramesHero from './components/EnterpriseFramesHero';
 import AboutSection from './components/AboutSection';
@@ -6,20 +7,23 @@ import ServicesSection from './components/ServicesSection';
 import ProcessTimeline from './components/ProcessTimeline';
 import ContactSection from './components/ContactSection';
 
-export default function App() {
-  const [scrollProgress, setScrollProgress] = useState(0);
+function AppContent() {
   const [activeSection, setActiveSection] = useState('hero');
   const [activeStage, setActiveStage] = useState(0);
   const [renderMode, setRenderMode] = useState<'wireframe' | 'xray' | 'thermal' | 'solid' | 'hologram'>('solid');
   const [focusedServiceId, setFocusedServiceId] = useState<string | null>(null);
 
-  // Scroll tracking & active section detection
-  useEffect(() => {
-    const handleScroll = () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight <= 0) return;
-      const progress = window.scrollY / docHeight;
-      setScrollProgress(progress);
+  // Section detection only — never setState every Lenis frame (that freezes the hero).
+  // Throttle to animation-frame coalescing via a dirty flag.
+  const sectionDirty = React.useRef(false);
+  const sectionRaf = React.useRef(0);
+
+  const lenis = useLenis(() => {
+    if (sectionDirty.current) return;
+    sectionDirty.current = true;
+    cancelAnimationFrame(sectionRaf.current);
+    sectionRaf.current = requestAnimationFrame(() => {
+      sectionDirty.current = false;
 
       const sections = ['hero', 'contact', 'about', 'services', 'process'];
       let currentSelection = 'hero';
@@ -34,25 +38,30 @@ export default function App() {
         }
       }
 
-      setActiveSection(currentSelection);
+      setActiveSection((prev) => (prev === currentSelection ? prev : currentSelection));
 
-      // Subtle stage mapping
-      if (currentSelection === 'hero') setActiveStage(0);
-      else if (currentSelection === 'about') setActiveStage(1);
-      else if (currentSelection === 'services') setActiveStage(2);
-      else if (currentSelection === 'process') setActiveStage(3);
-      else if (currentSelection === 'contact') setActiveStage(4);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+      const stage =
+        currentSelection === 'hero' ? 0 :
+        currentSelection === 'about' ? 1 :
+        currentSelection === 'services' ? 2 :
+        currentSelection === 'process' ? 3 :
+        currentSelection === 'contact' ? 4 : 0;
+      setActiveStage((prev) => (prev === stage ? prev : stage));
+    });
+  });
 
   const handleNavigate = (sectionId: string) => {
     const el = document.getElementById(sectionId);
-    if (el) {
-      const offset = sectionId === 'hero' ? 0 : 80;
-      const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    if (!el) return;
+
+    const offset = sectionId === 'hero' ? 0 : -80;
+    if (lenis) {
+      lenis.scrollTo(el, {
+        offset,
+        duration: 1.2,
+      });
+    } else {
+      const top = el.getBoundingClientRect().top + window.scrollY + offset;
       window.scrollTo({ top, behavior: 'smooth' });
     }
   };
@@ -64,7 +73,6 @@ export default function App() {
   const handleSelectRenderMode = (mode: typeof renderMode, serviceId: string) => {
     setRenderMode(mode);
     setFocusedServiceId(serviceId);
-    // Briefly flash the 3D viewer focus
     setTimeout(() => setFocusedServiceId(null), 1600);
   };
 
@@ -85,15 +93,16 @@ export default function App() {
       <AboutSection />
 
       {/* ==================== CAPABILITIES ==================== */}
-      <ServicesSection 
-        onSelectRenderMode={handleSelectRenderMode} 
-        focusedServiceId={focusedServiceId} 
+      <ServicesSection
+        onSelectRenderMode={handleSelectRenderMode}
+        focusedServiceId={focusedServiceId}
+        onNavigate={handleNavigate}
       />
 
       {/* ==================== METHODOLOGY + DIGITAL TWIN ==================== */}
-      <ProcessTimeline 
-        onSelectStage={handleSelectStage} 
-        activeStage={activeStage} 
+      <ProcessTimeline
+        onSelectStage={handleSelectStage}
+        activeStage={activeStage}
       />
 
       {/* ==================== ENTERPRISE FOOTER (Light) ==================== */}
@@ -133,5 +142,24 @@ export default function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ReactLenis
+      root
+      options={{
+        // Snappier lerp so frame sequences track the wheel more tightly
+        lerp: 0.12,
+        smoothWheel: true,
+        syncTouch: false,
+        touchMultiplier: 1.4,
+        wheelMultiplier: 0.95,
+        autoRaf: true,
+      }}
+    >
+      <AppContent />
+    </ReactLenis>
   );
 }
