@@ -134,8 +134,7 @@ export default function EnterpriseFramesHero({
     if (w < 1 || h < 1) return;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
 
     const mode: 'cover' | 'contain' = compactRef.current ? 'contain' : 'cover';
     drawImageFitted(ctx, image, w, h, mode);
@@ -258,7 +257,7 @@ export default function EnterpriseFramesHero({
       const pct = Math.round((finished / count) * 100);
       if (loadPctElRef.current) loadPctElRef.current.textContent = String(pct);
 
-      if (!readyRef.current && finished / count >= READY_THRESHOLD && loaded[0]) {
+      if (!readyRef.current && loaded[0]) {
         readyRef.current = true;
         setReady(true);
         requestPaint(true);
@@ -353,9 +352,7 @@ export default function EnterpriseFramesHero({
           canvas.style.height = `${h}px`;
         }
 
-        const ctx =
-          canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
-          canvas.getContext('2d', { alpha: false });
+        const ctx = canvas.getContext('2d');
         ctxRef.current = ctx;
         if (ctx) {
           ctx.imageSmoothingEnabled = true;
@@ -434,37 +431,22 @@ export default function EnterpriseFramesHero({
               alt="AMBOT365 Construction Landmark Structure"
               width={2752}
               height={1536}
-              decoding="async"
               fetchPriority="high"
               draggable={false}
-              className="absolute inset-0 w-full h-full pointer-events-none select-none"
+              className="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
               style={{
                 objectFit: isCompact ? 'contain' : 'cover',
                 objectPosition: isCompact ? 'center top' : 'center center',
-                opacity: reducedMotion || !ready ? 1 : 0,
-                transition: 'opacity 0.3s ease',
+                opacity: 1,
               }}
             />
 
             {!reducedMotion && (
               <canvas
                 ref={canvasRef}
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{
-                  opacity: ready ? 1 : 0,
-                  transition: 'opacity 0.3s ease',
-                }}
+                className="absolute inset-0 w-full h-full pointer-events-none z-10"
                 aria-hidden
               />
-            )}
-
-            {!ready && !reducedMotion && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-20 gap-2 bg-[#1a1a1a]/70">
-                <div className="w-8 h-8 border-2 border-[#B87333]/30 border-t-[#B87333] rounded-full animate-spin" />
-                <div className="text-[10px] text-white/50 tracking-[0.25em] font-mono">
-                  LOADING — <span ref={loadPctElRef}>0</span>%
-                </div>
-              </div>
             )}
 
             <div className="absolute inset-0 blueprint-grid opacity-[0.10] pointer-events-none" />
