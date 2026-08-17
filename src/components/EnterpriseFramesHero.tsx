@@ -141,8 +141,7 @@ export default function EnterpriseFramesHero({
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, 0, w, h);
 
-    const mode: 'cover' | 'contain' = v === 'desktop' ? 'cover' : 'contain';
-    drawImageFitted(ctx, image, w, h, mode);
+    drawImageFitted(ctx, image, w, h, 'cover');
 
     lastDrawnRef.current = idx;
   };
@@ -404,7 +403,6 @@ export default function EnterpriseFramesHero({
 
   const isCompact = variant === 'compact';
   const poster = posterUrl(variant);
-  const aspect = FRAME_CONFIG.aspectRatioCss;
 
   return (
     <>
@@ -412,45 +410,28 @@ export default function EnterpriseFramesHero({
         ref={sectionRef}
         id="hero"
         className="relative w-full bg-[#F8F7F4]"
-        style={{ height: isCompact ? '300vh' : '240vh' }}
+        style={{ height: isCompact ? '260vh' : '240vh' }}
       >
         <div
           ref={stickyRef}
-          className={
-            isCompact
-              ? 'sticky w-full bg-[#F8F7F4] overflow-x-clip flex flex-col'
-              : 'sticky top-0 h-[100dvh] w-full bg-[#1a1a1a] overflow-hidden'
-          }
-          style={
-            isCompact
-              ? {
-                  top: 'var(--nav-height)',
-                  minHeight: 'calc(100dvh - var(--nav-height))',
-                }
-              : undefined
-          }
+          className="sticky top-0 h-[100dvh] w-full bg-[#1a1a1a] overflow-hidden"
         >
           <div
             ref={plateRef}
-            className={
-              isCompact
-                ? 'relative w-full shrink-0 bg-[#1a1a1a] overflow-hidden'
-                : 'absolute inset-0 w-full h-full bg-[#1a1a1a] overflow-hidden'
-            }
-            style={isCompact ? { aspectRatio: aspect, width: '100%' } : undefined}
+            className="absolute inset-0 w-full h-full bg-[#1a1a1a] overflow-hidden"
           >
             <img
               src={poster}
-              alt=""
-              width={1280}
-              height={720}
+              alt="AMBOT365 Construction Landmark Structure"
+              width={2752}
+              height={1536}
               decoding="async"
               fetchPriority="high"
               draggable={false}
               className="absolute inset-0 w-full h-full pointer-events-none select-none"
               style={{
-                objectFit: isCompact ? 'contain' : 'cover',
-                objectPosition: isCompact ? 'center top' : 'center center',
+                objectFit: 'cover',
+                objectPosition: 'center center',
                 opacity: reducedMotion || !ready ? 1 : 0,
                 transition: 'opacity 0.3s ease',
               }}
@@ -477,52 +458,12 @@ export default function EnterpriseFramesHero({
               </div>
             )}
 
-            <div className="absolute inset-0 blueprint-grid opacity-[0.12] pointer-events-none" />
-
-            {!isCompact && (
-              <>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
-
-                <div className="absolute inset-0 flex flex-col justify-end pointer-events-none z-10 px-4 sm:px-6 md:px-10 pb-[clamp(4rem,10dvh,8rem)]">
-                  <div className="overflow-hidden mb-[clamp(0.75rem,2dvh,1.5rem)]">
-                    <div
-                      className="uppercase tracking-[0.3em] text-[#B87333] font-medium opacity-90"
-                      style={{ fontSize: 'clamp(0.7rem, 0.4rem + 0.8vw, 1rem)' }}
-                    >
-                      Proprietary Framework
-                    </div>
-                  </div>
-
-                  <h1
-                    className="display-lg text-white max-w-5xl leading-[0.9] tracking-[-0.04em] mix-blend-overlay opacity-90 drop-shadow-2xl"
-                    style={{
-                      fontSize:
-                        'clamp(2.25rem, min(1.2rem + 4.6vw, 0.5rem + 7vh), 4.5rem)',
-                    }}
-                  >
-                    Ambot365
-                    <br />
-                    <span className="opacity-70">Construction</span>
-                  </h1>
-                </div>
-
-                <div className="absolute bottom-[clamp(1.5rem,4dvh,3rem)] right-[clamp(1rem,3vw,3rem)] z-20 pointer-events-none flex items-center gap-4">
-                  <span className="text-white/50 text-xs tracking-[0.3em] uppercase font-mono">
-                    Scroll
-                  </span>
-                  <div className="w-12 h-px bg-white/20 relative overflow-hidden">
-                    <div className="absolute inset-y-0 left-0 w-1/3 bg-[#B87333] animate-[slide_2s_ease-in-out_infinite]" />
-                  </div>
-                </div>
-              </>
-            )}
+            <div className="absolute inset-0 blueprint-grid opacity-[0.10] pointer-events-none" />
           </div>
-
-          {isCompact && children}
         </div>
       </section>
 
-      {!isCompact && children}
+      {children}
     </>
   );
 }

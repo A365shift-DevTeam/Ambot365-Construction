@@ -1,9 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
-/* Fixed navbar offset — hero frames sit flush underneath */
+/* Fixed navbar offset — sleek compact enterprise navbar */
 :root {
-  --nav-height: 5rem; /* matches h-20 */
+  --nav-height: 3.5rem; /* 56px desktop */
+}
+
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 3.25rem; /* 52px mobile */
+  }
 }
 
 @theme {

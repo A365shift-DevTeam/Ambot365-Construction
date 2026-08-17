@@ -54,7 +54,7 @@ function AppContent() {
     const el = document.getElementById(sectionId);
     if (!el) return;
 
-    const offset = sectionId === 'hero' ? 0 : -80;
+    const offset = sectionId === 'hero' ? 0 : -56;
     if (lenis) {
       lenis.scrollTo(el, {
         offset,

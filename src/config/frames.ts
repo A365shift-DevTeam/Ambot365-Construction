@@ -49,9 +49,9 @@ export function frameUrl(variant: FrameVariant, renderedIndex: number): string {
   return `${dir}/${String(n).padStart(pad, '0')}.${extension}`;
 }
 
-/** Poster = first frame of the active variant */
-export function posterUrl(variant: FrameVariant): string {
-  return frameUrl(variant, 0);
+/** Poster = Default hero image */
+export function posterUrl(_variant?: FrameVariant): string {
+  return '/default-hero-image.webp';
 }
 
 export function renderedCount(variant: FrameVariant): number {
