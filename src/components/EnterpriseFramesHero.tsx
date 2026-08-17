@@ -6,7 +6,6 @@ import {
   posterUrl,
   progressToIndex,
   renderedCount,
-  type FrameVariant,
 } from '../config/frames';
 
 interface EnterpriseFramesHeroProps {
@@ -16,10 +15,10 @@ interface EnterpriseFramesHeroProps {
 
 const COMPACT_MQ = '(max-width: 1023px), (orientation: portrait)';
 const REDUCED_MQ = '(prefers-reduced-motion: reduce)';
-/** Parallel loaders — fills the sequence quickly so scrubbing never stalls */
-const LOAD_CONCURRENCY = 32;
-/** Unlock canvas once this fraction is decoded (rest continues in background) */
-const READY_THRESHOLD = 0.4;
+/** Parallel loaders for the single 80-frame sequence */
+const LOAD_CONCURRENCY = 24;
+/** Unlock canvas once initial fraction is decoded */
+const READY_THRESHOLD = 0.35;
 
 function isCompactViewport(): boolean {
   if (typeof window === 'undefined') return false;
@@ -36,7 +35,7 @@ function drawImageFitted(
   image: HTMLImageElement,
   boxW: number,
   boxH: number,
-  mode: 'cover' | 'contain',
+  mode: 'cover' | 'contain' = 'cover',
 ) {
   const imgW = image.naturalWidth || image.width;
   const imgH = image.naturalHeight || image.height;
@@ -55,7 +54,7 @@ function drawImageFitted(
   }
 }
 
-/** Prefer holding the previous frame (no forward jumps while still loading) */
+/** Prefer holding the previous frame if target isn't loaded yet */
 function resolveFrame(target: number, loaded: boolean[], count: number): number {
   if (target < 0 || target >= count) return -1;
   if (loaded[target]) return target;
@@ -69,15 +68,15 @@ function resolveFrame(target: number, loaded: boolean[], count: number): number 
 }
 
 function readNavHeightPx(): number {
-  if (typeof window === 'undefined') return 80;
+  if (typeof window === 'undefined') return 56;
   const raw = getComputedStyle(document.documentElement)
     .getPropertyValue('--nav-height')
     .trim();
-  if (!raw) return 80;
+  if (!raw) return 56;
   const probe = document.createElement('div');
   probe.style.cssText = `position:absolute;visibility:hidden;height:${raw}`;
   document.documentElement.appendChild(probe);
-  const h = probe.offsetHeight || 80;
+  const h = probe.offsetHeight || 56;
   probe.remove();
   return h;
 }
@@ -93,28 +92,26 @@ export default function EnterpriseFramesHero({
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const loadPctElRef = useRef<HTMLSpanElement>(null);
 
-  const [variant, setVariant] = useState<FrameVariant>(() =>
-    isCompactViewport() ? 'compact' : 'desktop',
-  );
+  const [isCompact, setIsCompact] = useState(() => isCompactViewport());
   const [reducedMotion, setReducedMotion] = useState(() => prefersReducedMotion());
   const [ready, setReady] = useState(false);
 
-  // Imperative — never drive frames through React state
+  // Imperative refs for high performance
   const progressRef = useRef(0);
   const lastDrawnRef = useRef(-1);
   const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
   const loadedRef = useRef<boolean[]>([]);
-  const variantRef = useRef(variant);
+  const compactRef = useRef(isCompact);
   const reducedRef = useRef(reducedMotion);
   const sizeRef = useRef({ w: 0, h: 0, dpr: 1 });
   const readyRef = useRef(false);
-  const navHRef = useRef(80);
+  const navHRef = useRef(56);
   const needsPaintRef = useRef(true);
   const loopingRef = useRef(false);
   const rafLoopRef = useRef(0);
   const idleFramesRef = useRef(0);
 
-  variantRef.current = variant;
+  compactRef.current = isCompact;
   reducedRef.current = reducedMotion;
   readyRef.current = ready;
 
@@ -124,9 +121,8 @@ export default function EnterpriseFramesHero({
     const ctx = ctxRef.current;
     if (!ctx) return;
 
-    const v = variantRef.current;
-    const count = renderedCount(v);
-    const target = progressToIndex(progressRef.current, v);
+    const count = renderedCount();
+    const target = progressToIndex(progressRef.current);
     const idx = resolveFrame(target, loadedRef.current, count);
     if (idx < 0) return;
     if (idx === lastDrawnRef.current) return;
@@ -141,12 +137,13 @@ export default function EnterpriseFramesHero({
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, 0, w, h);
 
-    drawImageFitted(ctx, image, w, h, 'cover');
+    const mode: 'cover' | 'contain' = compactRef.current ? 'contain' : 'cover';
+    drawImageFitted(ctx, image, w, h, mode);
 
     lastDrawnRef.current = idx;
   };
 
-  /** Sticky rAF loop — keeps painting every display frame while scroll is active */
+  /** Sticky rAF loop */
   const ensureLoop = () => {
     if (loopingRef.current) {
       idleFramesRef.current = 0;
@@ -164,7 +161,6 @@ export default function EnterpriseFramesHero({
         idleFramesRef.current += 1;
       }
 
-      // Stop after ~0.5s idle to save battery; restart on next scroll
       if (idleFramesRef.current > 30) {
         loopingRef.current = false;
         return;
@@ -187,27 +183,29 @@ export default function EnterpriseFramesHero({
     if (!section || reducedRef.current) return;
 
     const rect = section.getBoundingClientRect();
-    const v = variantRef.current;
     const stickyH =
       stickyRef.current?.clientHeight ||
-      (v === 'compact'
+      (compactRef.current
         ? window.innerHeight - navHRef.current
         : window.innerHeight);
     const scrollDistance = Math.max(rect.height - stickyH, 1);
     const scrolled = -rect.top;
     const next = Math.max(0, Math.min(scrolled / scrollDistance, 1));
 
-    // Always flag paint — even tiny Lenis steps must advance frames
     progressRef.current = next;
     requestPaint(false);
   };
 
-  // matchMedia
+  // Match media for compact and reduced motion
   useEffect(() => {
     const compactMq = window.matchMedia(COMPACT_MQ);
     const reducedMq = window.matchMedia(REDUCED_MQ);
 
-    const onCompact = () => setVariant(compactMq.matches ? 'compact' : 'desktop');
+    const onCompact = () => {
+      setIsCompact(compactMq.matches);
+      compactRef.current = compactMq.matches;
+      requestPaint(true);
+    };
     const onReduced = () => setReducedMotion(reducedMq.matches);
 
     navHRef.current = readNavHeightPx();
@@ -229,13 +227,12 @@ export default function EnterpriseFramesHero({
       cancelAnimationFrame(rafLoopRef.current);
       loopingRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Parallel preload — no React setState per image (that was killing FPS)
+  // Single sequence preload
   useEffect(() => {
     let cancelled = false;
-    const count = renderedCount(variant);
+    const count = renderedCount();
     const loaded = new Array(count).fill(false);
     const images: (HTMLImageElement | null)[] = new Array(count).fill(null);
 
@@ -259,7 +256,6 @@ export default function EnterpriseFramesHero({
 
       finished++;
       const pct = Math.round((finished / count) * 100);
-      // Imperative DOM write — zero React cost
       if (loadPctElRef.current) loadPctElRef.current.textContent = String(pct);
 
       if (!readyRef.current && finished / count >= READY_THRESHOLD && loaded[0]) {
@@ -284,7 +280,6 @@ export default function EnterpriseFramesHero({
         const img = new Image();
         img.decoding = 'async';
         img.onload = () => {
-          // decode() so the first draw doesn't hitch
           const finish = () => {
             onOneDone(i, img, true);
             resolve();
@@ -299,7 +294,7 @@ export default function EnterpriseFramesHero({
           onOneDone(i, null, false);
           resolve();
         };
-        img.src = frameUrl(variant, i);
+        img.src = frameUrl(undefined, i);
       });
 
     const worker = async () => {
@@ -329,8 +324,7 @@ export default function EnterpriseFramesHero({
         loaded[i] = false;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variant]);
+  }, []);
 
   // Canvas measure
   useEffect(() => {
@@ -365,7 +359,7 @@ export default function EnterpriseFramesHero({
         ctxRef.current = ctx;
         if (ctx) {
           ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'medium'; // faster than 'high' while scrolling
+          ctx.imageSmoothingQuality = 'medium';
         }
       }
 
@@ -385,10 +379,9 @@ export default function EnterpriseFramesHero({
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variant, reducedMotion]);
+  }, [isCompact, reducedMotion]);
 
-  // Lenis + native scroll both feed the same progress ref
+  // Lenis + native scroll
   useLenis(() => {
     updateProgress();
   });
@@ -398,11 +391,10 @@ export default function EnterpriseFramesHero({
     window.addEventListener('scroll', onScroll, { passive: true });
     updateProgress();
     return () => window.removeEventListener('scroll', onScroll);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variant]);
+  }, []);
 
-  const isCompact = variant === 'compact';
-  const poster = posterUrl(variant);
+  const poster = posterUrl();
+  const aspect = FRAME_CONFIG.aspectRatioCss;
 
   return (
     <>
@@ -410,15 +402,32 @@ export default function EnterpriseFramesHero({
         ref={sectionRef}
         id="hero"
         className="relative w-full bg-[#F8F7F4]"
-        style={{ height: isCompact ? '260vh' : '240vh' }}
+        style={{ height: isCompact ? '300vh' : '240vh' }}
       >
         <div
           ref={stickyRef}
-          className="sticky top-0 h-[100dvh] w-full bg-[#1a1a1a] overflow-hidden"
+          className={
+            isCompact
+              ? 'sticky w-full bg-[#F8F7F4] overflow-x-clip flex flex-col'
+              : 'sticky top-0 h-[100dvh] w-full bg-[#1a1a1a] overflow-hidden'
+          }
+          style={
+            isCompact
+              ? {
+                  top: 'var(--nav-height)',
+                  minHeight: 'calc(100dvh - var(--nav-height))',
+                }
+              : undefined
+          }
         >
           <div
             ref={plateRef}
-            className="absolute inset-0 w-full h-full bg-[#1a1a1a] overflow-hidden"
+            className={
+              isCompact
+                ? 'relative w-full shrink-0 bg-[#1a1a1a] overflow-hidden'
+                : 'absolute inset-0 w-full h-full bg-[#1a1a1a] overflow-hidden'
+            }
+            style={isCompact ? { aspectRatio: aspect, width: '100%' } : undefined}
           >
             <img
               src={poster}
@@ -430,8 +439,8 @@ export default function EnterpriseFramesHero({
               draggable={false}
               className="absolute inset-0 w-full h-full pointer-events-none select-none"
               style={{
-                objectFit: 'cover',
-                objectPosition: 'center center',
+                objectFit: isCompact ? 'contain' : 'cover',
+                objectPosition: isCompact ? 'center top' : 'center center',
                 opacity: reducedMotion || !ready ? 1 : 0,
                 transition: 'opacity 0.3s ease',
               }}
@@ -460,10 +469,12 @@ export default function EnterpriseFramesHero({
 
             <div className="absolute inset-0 blueprint-grid opacity-[0.10] pointer-events-none" />
           </div>
+
+          {isCompact && children}
         </div>
       </section>
 
-      {children}
+      {!isCompact && children}
     </>
   );
 }

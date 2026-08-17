@@ -45,12 +45,25 @@ export default function EnterpriseNavbar({ currentSection, onNavigate }: Enterpr
     };
   }, []);
 
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 1023px), (orientation: portrait)').matches
+      : false
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px), (orientation: portrait)');
+    const onChange = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   const handleLinkClick = (id: string) => {
     onNavigate(id);
     setIsOpen(false);
   };
 
-  const isTransparent = heroFramesActive;
+  const isTransparent = heroFramesActive && !isMobile;
 
   return (
     <>
